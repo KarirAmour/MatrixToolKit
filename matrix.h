@@ -21,7 +21,9 @@ public:
 	Matrix(const char *file_name, std::size_t nrows, std::size_t ncols);
 	Matrix(std::size_t nrows, std::size_t ncols);
 	Matrix(const Matrix &other);
-
+	Matrix(Matrix &&other);
+	// Matrix &operator=(const Matrix &other);
+	// Matrix &operator=(const Matrix &&other);
 	~Matrix();
 
 
@@ -30,7 +32,8 @@ public:
 	void readCSV(const char *file_name);
 
 	bool operator==(const Matrix& rhs) const;
-
+    Matrix operator*(Matrix const& rhs) const;
+    TYPE dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const;
 	// Matrix operator+ (const Matrix& c) const;
 
 	// void WriteTo(std::string file);

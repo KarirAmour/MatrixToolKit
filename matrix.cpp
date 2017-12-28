@@ -13,7 +13,7 @@ class NoMemory {};
 class InvalidRow {};
 class InvalidCol {};
 class InvalidRead {};
-
+class InvalidDimensions {};
 
 // int Matrix::my_atoi(const char *str) {
 //     while (*str == ' ') ++str; // skip leading whitespace
@@ -87,13 +87,20 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 
 
 // Move Constructor
-Matrix::Matrix(Matrix &&other);
+Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
+	this->data = other.data;
+	other.num_cols = other.num_rows = 0;
+	other.data = NULL;
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+
+	}
+}
 
 // Copy Assignment
-Matrix &operator=(const Matrix &other);
+// Matrix &Matrix::operator=(const Matrix &other) {}
 
 // Move Assignment
-Matrix &operator=(const Matrix &&other);
+// Matrix &Matrix::operator=(const Matrix &&other) {}
 
 
 
@@ -111,36 +118,6 @@ bool Matrix::operator==(const Matrix &rhs) const {
 	return true;
 }
 
-// void Matrix::readCSV(std::istream &input) {
-
-// 	clock_t t;
-// 	t = clock();
-
-// 	std::string line;
-// 	size_t row = 0;
-
-// 	while ( getline(input, line) ) {
-
-// 		std::istringstream ss(line);
-// 		TYPE cell = 0;
-// 		size_t col = 0;
-// 		while (ss.good()) {
-// 			std::string cellString;
-// 		    getline( ss, cellString, ',' );
-// 		    std::istringstream toIntSS(cellString);
-// 		    toIntSS >> cell;
-// 		    if (col >= num_cols) throw InvalidCol();
-// 			this->data[row][col++] = cell;
-// 			// std::cout << row << ", " << col << std::endl;
-// 		}
-		
-// 		if (row >= num_rows) throw InvalidCol();
-// 		++row;
-
-// 	}
-// 	t = clock() - t;
-// 	printf ("It took me %d clicks (%f seconds).\n",t,((float)t)/CLOCKS_PER_SEC);
-// }
 
 
 void Matrix::readCSV(const char *file_name) {
@@ -179,8 +156,8 @@ void Matrix::readCSV(const char *file_name) {
 }
 
 void Matrix::print() {
-	for (std::size_t row = 0; row < num_rows; ++row) {
-		for (std::size_t col = 0; col < num_cols; ++col) {
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
 			std::cout << this->data[row][col] << " ";
 		}
 		std::cout << std::endl;
@@ -188,8 +165,69 @@ void Matrix::print() {
 
 }
 
+TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
+	int sum = 0;
+	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
+
+	for (std::size_t loop = 0; loop < lhs.num_cols; ++loop) {
+		sum += lhs.data[row][loop] * rhs.data[loop][col];
+	}
+
+	return sum;
+}
+
+Matrix Matrix::operator*(Matrix const& rhs) const {
+
+	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
+
+	Matrix product = Matrix(this->num_rows, rhs.num_cols);
+	for (std::size_t row = 0; row < product.num_rows; ++row) {
+		for (std::size_t col = 0; col < product.num_cols; ++col) {
+			product.data[row][col] = this->dot(*this, rhs, row, col);
+		}
+
+	}
+
+	return product;
+
+}
 
 
 // Matrix Matrix::operator+ (const Matrix& c) const {
 
+// }
+
+
+
+
+
+// void Matrix::readCSV(std::istream &input) {
+
+// 	clock_t t;
+// 	t = clock();
+
+// 	std::string line;
+// 	size_t row = 0;
+
+// 	while ( getline(input, line) ) {
+
+// 		std::istringstream ss(line);
+// 		TYPE cell = 0;
+// 		size_t col = 0;
+// 		while (ss.good()) {
+// 			std::string cellString;
+// 		    getline( ss, cellString, ',' );
+// 		    std::istringstream toIntSS(cellString);
+// 		    toIntSS >> cell;
+// 		    if (col >= num_cols) throw InvalidCol();
+// 			this->data[row][col++] = cell;
+// 			// std::cout << row << ", " << col << std::endl;
+// 		}
+		
+// 		if (row >= num_rows) throw InvalidCol();
+// 		++row;
+
+// 	}
+// 	t = clock() - t;
+// 	printf ("It took me %d clicks (%f seconds).\n",t,((float)t)/CLOCKS_PER_SEC);
 // }
