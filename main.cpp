@@ -1,8 +1,6 @@
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
 #include <string>
+#include <ctime>
 
 
 #include "matrix.h"
@@ -16,8 +14,13 @@ int main() {
 
 	Matrix n(m);
 
-	if (m == n) {
-		std::cout << "m == n" << std::endl;
-	}
+	// if (m == n) {
+	// 	std::cout << "m == n" << std::endl;
+	// }
+	clock_t t = clock();
+	Matrix c = n * m;
+	t = clock() - t;
+	std::cout << "All " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+
 	return 0;
 }

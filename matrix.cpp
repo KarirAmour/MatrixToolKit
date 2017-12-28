@@ -178,6 +178,8 @@ TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::siz
 
 Matrix Matrix::operator*(Matrix const& rhs) const {
 
+	clock_t t = clock();
+
 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
 
 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
@@ -187,6 +189,9 @@ Matrix Matrix::operator*(Matrix const& rhs) const {
 		}
 
 	}
+
+	t = clock() - t;
+	std::cout << "Matrix Multiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
 
 	return product;
 
