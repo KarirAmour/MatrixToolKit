@@ -11,7 +11,7 @@
 class Matrix {
 	std::size_t num_rows;
 	std::size_t num_cols;
-	bool is_sparse;
+	// bool is_sparse;
 
 	TYPE **data;
 
@@ -20,14 +20,23 @@ public:
 	// Matrix(unsigned int rows, unsigned int cols);
 	Matrix(const char *file_name, std::size_t nrows, std::size_t ncols);
 	Matrix(std::size_t nrows, std::size_t ncols);
+	Matrix(const Matrix &other);
+
+	~Matrix();
+
+
 	void allocateData();
-	// void WriteTo(std::string file);
 	void print();
-	// void readCSV(std::istream &input);
 	void readCSV(const char *file_name);
 
-	int my_atoi(const char *str);
+	bool operator==(const Matrix& rhs) const;
+
 	// Matrix operator+ (const Matrix& c) const;
+
+	// void WriteTo(std::string file);
+	// int my_atoi(const char *str);
+
+	// void readCSV(std::istream &input);
 
 
 };

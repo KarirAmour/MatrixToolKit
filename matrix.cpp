@@ -12,6 +12,7 @@ class FileNotFound {};
 class NoMemory {};
 class InvalidRow {};
 class InvalidCol {};
+class InvalidRead {};
 
 
 // int Matrix::my_atoi(const char *str) {
@@ -60,6 +61,55 @@ void Matrix::allocateData() {
 	}
 }
 
+// Destructor
+Matrix::~Matrix() {
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		delete[] this->data[row];
+	}
+	delete[] this->data;
+}
+
+// Copy Constructor
+Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
+
+	clock_t t;
+	t = clock();
+	this->allocateData();
+	for (std::size_t row = 0; row < num_rows; ++row) {
+		std::copy(other.data[row], other.data[row] + num_rows, this->data[row]);
+	}
+
+	
+	t = clock() - t;
+	std::cout << "Copy ctor: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+
+}
+
+
+// Move Constructor
+Matrix::Matrix(Matrix &&other);
+
+// Copy Assignment
+Matrix &operator=(const Matrix &other);
+
+// Move Assignment
+Matrix &operator=(const Matrix &&other);
+
+
+
+bool Matrix::operator==(const Matrix &rhs) const {
+	if (this->num_rows != rhs.num_rows or this->num_cols != rhs.num_cols) {
+		return false;
+	}
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			if (this->data[row][col] != rhs.data[row][col]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
 
 // void Matrix::readCSV(std::istream &input) {
 
@@ -109,17 +159,11 @@ void Matrix::readCSV(const char *file_name) {
 	int buff_size = (this->num_cols * sizeof(TYPE) + 1) * 8;
 	for (std::size_t n_row = 0; n_row < this->num_rows; ++n_row) {
 		char * row_data = new char[buff_size];
-		fgets(row_data, buff_size, fp);
+		if (not fgets(row_data, buff_size, fp)) throw InvalidRead();
 		char *token;
 		token = std::strtok(row_data, SEP);
-		// std::cout << n_row << std::endl;
-		// printf("row %d: %s\n", n_row, row_data);
 		for (std::size_t n_col = 0; n_col < this->num_cols; ++n_col) {
-			// std::cout << n_col << ": " << atoi(token) << ", " << token << std::endl;
-
-			// printf("data[%d][%d] = %s\n", n_row, n_col, token);
 			this->data[n_row][n_col] = atoi(token);
-
 			token = std::strtok(NULL, SEP);
 		}
 		delete[] row_data;
@@ -131,7 +175,7 @@ void Matrix::readCSV(const char *file_name) {
 
 
 	t = clock() - t;
-	printf ("It took me %d clicks (%f seconds).\n",t,((float)t)/CLOCKS_PER_SEC);
+	std::cout << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
 }
 
 void Matrix::print() {
@@ -143,6 +187,7 @@ void Matrix::print() {
 	}
 
 }
+
 
 
 // Matrix Matrix::operator+ (const Matrix& c) const {
