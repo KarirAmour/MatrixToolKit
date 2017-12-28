@@ -72,16 +72,16 @@ Matrix::~Matrix() {
 // Copy Constructor
 Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
 
-	clock_t t;
-	t = clock();
+	// clock_t t;
+	// t = clock();
 	this->allocateData();
 	for (std::size_t row = 0; row < num_rows; ++row) {
 		std::copy(other.data[row], other.data[row] + num_rows, this->data[row]);
 	}
 
 	
-	t = clock() - t;
-	std::cout << "Copy ctor: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+	// t = clock() - t;
+	// std::cout << "Copy ctor: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
 
 }
 
@@ -122,15 +122,15 @@ bool Matrix::operator==(const Matrix &rhs) const {
 
 void Matrix::readCSV(const char *file_name) {
 
-	clock_t t;
-	t = clock();
+	// clock_t t;
+	// t = clock();
 
 	FILE *fp = fopen(file_name, "r");
 	if (fp == NULL) {
-		printf("No such file.\n");
+		// printf("No such file.\n");
 		exit(1);
 	} else {
-		printf("Opened file.\n");
+		// printf("Opened file.\n");
 	}
 
 	int buff_size = (this->num_cols * sizeof(TYPE) + 1) * 8;
@@ -151,11 +151,11 @@ void Matrix::readCSV(const char *file_name) {
 
 
 
-	t = clock() - t;
-	std::cout << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+	// t = clock() - t;
+	// std::cout << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
 }
 
-void Matrix::print() {
+void Matrix::print() const {
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
 			std::cout << this->data[row][col] << " ";
@@ -165,39 +165,79 @@ void Matrix::print() {
 
 }
 
-TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
-	int sum = 0;
-	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
+// TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
+// 	int sum = 0;
+// 	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
 
-	for (std::size_t loop = 0; loop < lhs.num_cols; ++loop) {
-		sum += lhs.data[row][loop] * rhs.data[loop][col];
-	}
+// 	for (std::size_t loop = 0; loop < lhs.num_cols; ++loop) {
+// 		sum += lhs.data[row][loop] * rhs.data[loop][col];
+// 	}
 
-	return sum;
-}
+// 	return sum;
+// }
 
-Matrix Matrix::operator*(Matrix const& rhs) const {
+Matrix Matrix::naiveMultiply(const Matrix &rhs) const {
 
-	clock_t t = clock();
+	// clock_t t = clock();
 
 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
 
 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
 	for (std::size_t row = 0; row < product.num_rows; ++row) {
 		for (std::size_t col = 0; col < product.num_cols; ++col) {
-			product.data[row][col] = this->dot(*this, rhs, row, col);
+			TYPE sum = 0;
+			for (std::size_t k = 0; k < this->num_cols; ++k) {
+				sum += this->data[row][k] * rhs.data[k][col];
+
+			}
+			product.data[row][col] = sum;
 		}
 
 	}
 
-	t = clock() - t;
-	std::cout << "Matrix Multiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+	// t = clock() - t;
+	// std::cout << "naiveMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
 
 	return product;
 
 }
 
 
+Matrix Matrix::naiveLoopMultiply(const Matrix &rhs) const {
+
+	// clock_t t = clock();
+
+	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
+
+	Matrix product = Matrix(this->num_rows, rhs.num_cols);
+	for (std::size_t row = 0; row < product.num_rows; row += 2) {
+		for (std::size_t col = 0; col < product.num_cols; col += 2) {
+			TYPE acc00 = 0, acc01 = 0, acc10 = 0, acc11 = 0;
+			for (std::size_t k = 0; k < this->num_cols; ++k) {
+				acc00 += this->data[k][col + 0] * rhs.data[row + 0][k];
+				acc01 += this->data[k][col + 1] * rhs.data[row + 0][k];
+				acc10 += this->data[k][col + 0] * rhs.data[row + 1][k];
+				acc11 += this->data[k][col + 1] * rhs.data[row + 1][k];
+			}
+			product.data[row + 0][col + 0] = acc00;
+			product.data[row + 0][col + 1] = acc01;
+			product.data[row + 1][col + 0] = acc10;
+			product.data[row + 1][col + 1] = acc11;
+		}
+		// if (product.num_cols % 2 == 1) {
+		// 	TYPE sum = 0;
+		// 	for (std::size_t k = 0; k < this->num_cols; ++k) {
+		// 		sum += this->data[row][k] * rhs.data[k][col];
+
+		// }
+	}
+
+	// t = clock() - t;
+	// std::cout << "naiveLoopMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+
+	return product;
+
+}
 // Matrix Matrix::operator+ (const Matrix& c) const {
 
 // }
