@@ -44,8 +44,8 @@ Matrix::Matrix(const char *file_name, std::size_t num_rows, std::size_t num_cols
 
 }
 
-Matrix::Matrix(std::size_t num_rows, std::size_t num_cols) : 
-	num_rows{num_rows}, num_cols{num_cols} {
+Matrix::Matrix(std::size_t num_rows = 0, std::size_t num_cols = 0) : 
+	num_rows{num_rows}, num_cols{num_cols}, data{NULL} {
 
 		this->allocateData();
 
@@ -54,6 +54,8 @@ Matrix::Matrix(std::size_t num_rows, std::size_t num_cols) :
 
 void Matrix::allocateData() {
 	// Allocate enough data
+	if (this->num_cols == 0 or this->num_rows == 0) return;
+
 	this->data = new TYPE *[this->num_rows];
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		this->data[row] = new TYPE[this->num_cols];
@@ -67,6 +69,8 @@ Matrix::~Matrix() {
 		delete[] this->data[row];
 	}
 	delete[] this->data;
+	std::cout << "Destructor" << std::endl;
+
 }
 
 // Copy Constructor
@@ -82,6 +86,7 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 	
 	// t = clock() - t;
 	// std::cout << "Copy ctor: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+	std::cout << "Copy Constructor" << std::endl;
 
 }
 
@@ -91,16 +96,37 @@ Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_co
 	this->data = other.data;
 	other.num_cols = other.num_rows = 0;
 	other.data = NULL;
-	for (std::size_t row = 0; row < this->num_rows; ++row) {
+	std::cout << "Move Constructor" << std::endl;
+}
 
-	}
+void swap(Matrix &first, Matrix &second) {
+	// enable ADL (not necessary in our case, but good practice)
+	using std::swap;
+
+	swap(first.num_rows, second.num_rows);
+	swap(first.num_cols, second.num_cols);
+	swap(first.data, second.data);
+
 }
 
 // Copy Assignment
-// Matrix &Matrix::operator=(const Matrix &other) {}
+Matrix &Matrix::operator=(Matrix other) {
+
+	swap(*this, other);
+
+	std::cout << "Copy Assignment" << std::endl;
+
+	return *this;
+
+}
 
 // Move Assignment
-// Matrix &Matrix::operator=(const Matrix &&other) {}
+Matrix &Matrix::operator=(Matrix &&other) {
+	swap(*this, other);
+	std::cout << "Move Assignment" << std::endl;
+	return *this;
+
+}
 
 
 
@@ -165,19 +191,9 @@ void Matrix::print() const {
 
 }
 
-// TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
-// 	int sum = 0;
-// 	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
 
-// 	for (std::size_t loop = 0; loop < lhs.num_cols; ++loop) {
-// 		sum += lhs.data[row][loop] * rhs.data[loop][col];
-// 	}
 
-// 	return sum;
-// }
-
-Matrix Matrix::naiveMultiply(const Matrix &rhs) const {
-
+Matrix Matrix::operator*(const Matrix &rhs) const {
 	// clock_t t = clock();
 
 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
@@ -203,43 +219,182 @@ Matrix Matrix::naiveMultiply(const Matrix &rhs) const {
 }
 
 
-Matrix Matrix::naiveLoopMultiply(const Matrix &rhs) const {
-
-	// clock_t t = clock();
-
-	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
-
-	Matrix product = Matrix(this->num_rows, rhs.num_cols);
-	for (std::size_t row = 0; row < product.num_rows; row += 2) {
-		for (std::size_t col = 0; col < product.num_cols; col += 2) {
-			TYPE acc00 = 0, acc01 = 0, acc10 = 0, acc11 = 0;
-			for (std::size_t k = 0; k < this->num_cols; ++k) {
-				acc00 += this->data[k][col + 0] * rhs.data[row + 0][k];
-				acc01 += this->data[k][col + 1] * rhs.data[row + 0][k];
-				acc10 += this->data[k][col + 0] * rhs.data[row + 1][k];
-				acc11 += this->data[k][col + 1] * rhs.data[row + 1][k];
-			}
-			product.data[row + 0][col + 0] = acc00;
-			product.data[row + 0][col + 1] = acc01;
-			product.data[row + 1][col + 0] = acc10;
-			product.data[row + 1][col + 1] = acc11;
-		}
-		// if (product.num_cols % 2 == 1) {
-		// 	TYPE sum = 0;
-		// 	for (std::size_t k = 0; k < this->num_cols; ++k) {
-		// 		sum += this->data[row][k] * rhs.data[k][col];
-
-		// }
+Matrix Matrix::operator*(TYPE scalar) const {
+	
+	Matrix product(*this);
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			product.data[row][col] *= scalar;
+		}	
 	}
-
-	// t = clock() - t;
-	// std::cout << "naiveLoopMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
-
 	return product;
-
 }
-// Matrix Matrix::operator+ (const Matrix& c) const {
 
+
+
+Matrix Matrix::operator+(const Matrix &rhs) const {
+	if (this->num_rows != rhs.num_rows or this->num_cols != rhs.num_cols) throw InvalidDimensions();
+	
+	Matrix sum(*this);
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			sum.data[row][col] += rhs.data[row][col];
+		}	
+	}
+	return sum;
+}
+
+Matrix Matrix::operator+(TYPE scalar) const {
+	
+	Matrix sum(*this);
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			sum.data[row][col] += scalar;
+		}	
+	}
+	return sum;
+}
+
+
+
+
+Matrix Matrix::operator-(TYPE scalar) const {
+	return Matrix(*this + (-scalar));
+}
+
+
+Matrix Matrix::Matrix::operator-(const Matrix &rhs) const {
+	if (this->num_rows != rhs.num_rows or this->num_cols != rhs.num_cols) throw InvalidDimensions();
+	
+	Matrix difference(*this);
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			difference.data[row][col] -= rhs.data[row][col];
+		}	
+	}
+	return difference;
+}
+
+
+
+bool Matrix::operator!=(const Matrix &rhs) const {
+	return not (*this == rhs);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
+// 	int sum = 0;
+// 	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
+
+// 	for (std::size_t loop = 0; loop < lhs.num_cols; ++loop) {
+// 		sum += lhs.data[row][loop] * rhs.data[loop][col];
+// 	}
+
+// 	return sum;
+// }
+
+
+// Matrix Matrix::naiveMultiply(const Matrix &rhs) const {
+
+// 	// clock_t t = clock();
+
+// 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
+
+// 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
+// 	for (std::size_t row = 0; row < product.num_rows; ++row) {
+// 		for (std::size_t col = 0; col < product.num_cols; ++col) {
+// 			TYPE sum = 0;
+// 			for (std::size_t k = 0; k < this->num_cols; ++k) {
+// 				sum += this->data[row][k] * rhs.data[k][col];
+
+// 			}
+// 			product.data[row][col] = sum;
+// 		}
+
+// 	}
+
+// 	// t = clock() - t;
+// 	// std::cout << "naiveMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+
+// 	return product;
+
+// }
+
+
+// Matrix Matrix::naiveLoopMultiply(const Matrix &rhs) const {
+
+// 	// clock_t t = clock();
+
+// 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
+
+// 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
+// 	for (std::size_t row = 0; row < product.num_rows; row += 2) {
+// 		for (std::size_t col = 0; col < product.num_cols; col += 2) {
+// 			TYPE acc00 = 0, acc01 = 0, acc10 = 0, acc11 = 0;
+// 			for (std::size_t k = 0; k < this->num_cols; ++k) {
+// 				acc00 += this->data[k][col + 0] * rhs.data[row + 0][k];
+// 				acc01 += this->data[k][col + 1] * rhs.data[row + 0][k];
+// 				acc10 += this->data[k][col + 0] * rhs.data[row + 1][k];
+// 				acc11 += this->data[k][col + 1] * rhs.data[row + 1][k];
+// 			}
+// 			product.data[row + 0][col + 0] = acc00;
+// 			product.data[row + 0][col + 1] = acc01;
+// 			product.data[row + 1][col + 0] = acc10;
+// 			product.data[row + 1][col + 1] = acc11;
+// 		}
+// 	}
+// 	// For last column if product.n_cols is odd
+// 	if (product.num_cols % 2 == 1) {
+// 		for (std::size_t row = 0; row < this->num_cols; ++row) {
+// 			TYPE sum = 0;
+// 			for (std::size_t k = 0; k < this->num_cols; ++k) {
+// 				sum += this->data[row][k] * rhs.data[k][product.num_cols - 1];
+// 			}
+// 			product.data[row][col] = sum;
+// 		}
+// 	}
+
+
+
+// 	// t = clock() - t;
+// 	// std::cout << "naiveLoopMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+
+// 	return product;
+
+// }
+
+
+
+// Matrix Matrix::operator+(const Matrix& c) const {
+// 	if (this->num_rows != rhs.num_rows or this->num_cols != rhs.num_cols) {
+// 		throw InvalidDimensions();
+// 	}
+
+// 	Matrix sum = Matrix(this->num_rows, this->num_cols);
+// 	for (std::size_t row = 0; row < product.num_rows; row += 2) {
+// 		for (std::size_t col = 0; col < product.num_cols; col += 2) {
 // }
 
 
