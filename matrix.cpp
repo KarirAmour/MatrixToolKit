@@ -8,58 +8,45 @@
 #include <cstring>
 
 
-class FileNotFound {};
-class NoMemory {};
-class InvalidRow {};
-class InvalidCol {};
-class InvalidRead {};
-class InvalidDimensions {};
 
-// int Matrix::my_atoi(const char *str) {
-//     while (*str == ' ') ++str; // skip leading whitespace
-//     int sign = 1;
-//     switch (*str) { // handle leading +/-
-//         case '-': ++str; sign = -1; break;
-//         case '+': ++str; break;
-//     }
-//     int value = 0;
-//     while (char c = *str) {
-//         if (c > '9' || value < 0) return 0; // non-digit, or overflow
-//         value *= 10;
-//         value += c - '0';
-//     }
-//     if (value < 0) return 0; // integer overflow
-//     return value * sign;
-// }
 
-Matrix::Matrix(const char *file_name, std::size_t num_rows, std::size_t num_cols) : 
-	num_rows{num_rows}, num_cols{num_cols} {
+/****************************************************************************\
+|***********************************BIG FIVE*********************************|
+\****************************************************************************/
 
-		this->allocateData();
 
-		// std::fstream file (file_name, std::fstream::in);
-		// if (! file.is_open()) throw FileNotFound();
+Matrix::Matrix(const char *file_name) : num_rows{0}, num_cols{0} {
+
 
 		this->readCSV(file_name);
 
+		this->determineInfo();
+
 }
 
-Matrix::Matrix(std::size_t num_rows = 0, std::size_t num_cols = 0) : 
-	num_rows{num_rows}, num_cols{num_cols}, data{NULL} {
+
+void Matrix::determineInfo() {
+	this->info = new MatrixInfo();
+}
+
+Matrix::Matrix(std::size_t nrows, std::size_t ncols) : 
+	num_rows{nrows}, num_cols{ncols}, data{NULL} {
 
 		this->allocateData();
-
+		this->info = new MatrixInfo();
 
 }
 
 void Matrix::allocateData() {
-	// Allocate enough data
-	if (this->num_cols == 0 or this->num_rows == 0) return;
+
+	if (this->num_cols == 0 or this->num_rows == 0) {
+		this->data = NULL;
+		return;
+	}
 
 	this->data = new TYPE *[this->num_rows];
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		this->data[row] = new TYPE[this->num_cols];
-		// if (not this->data[row]) throw NoMemory();
 	}
 }
 
@@ -76,16 +63,14 @@ Matrix::~Matrix() {
 // Copy Constructor
 Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
 
-	// clock_t t;
-	// t = clock();
 	this->allocateData();
 	for (std::size_t row = 0; row < num_rows; ++row) {
 		std::copy(other.data[row], other.data[row] + num_rows, this->data[row]);
 	}
 
-	
-	// t = clock() - t;
-	// std::cout << "Copy ctor: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
+	this->info = new MatrixInfo();
+	*(this->info) = *(other.info);
+
 	std::cout << "Copy Constructor" << std::endl;
 
 }
@@ -93,11 +78,19 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 
 // Move Constructor
 Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
-	this->data = other.data;
+
 	other.num_cols = other.num_rows = 0;
+
+	this->data = other.data;
+	this->info = other.info;
+
 	other.data = NULL;
+	other.info = NULL;
+
 	std::cout << "Move Constructor" << std::endl;
 }
+
+
 
 void swap(Matrix &first, Matrix &second) {
 	// enable ADL (not necessary in our case, but good practice)
@@ -106,6 +99,7 @@ void swap(Matrix &first, Matrix &second) {
 	swap(first.num_rows, second.num_rows);
 	swap(first.num_cols, second.num_cols);
 	swap(first.data, second.data);
+	swap(first.info, second.info);
 
 }
 
@@ -120,16 +114,99 @@ Matrix &Matrix::operator=(Matrix other) {
 
 }
 
-// Move Assignment
-Matrix &Matrix::operator=(Matrix &&other) {
-	swap(*this, other);
-	std::cout << "Move Assignment" << std::endl;
-	return *this;
 
+/****************************************************************************\
+|****************************************************************************|
+\****************************************************************************/
+
+
+
+
+
+/****************************************************************************\
+|*************************************CSV************************************|
+\****************************************************************************/
+
+
+// Note, CSV functions assume no newline at end, may pose issue for unix file endings.
+
+
+static size_t csvRowCount(const char *file_name) {
+	FILE *fptr = fopen(file_name, "r");
+	if (fptr == NULL) throw FileNotFound();
+
+	char c;
+	std::size_t count = 1; // Assumes #rows >= 1
+	while ( ((c = fgetc (fptr))!= EOF) ) {
+		if (c == '\n') count++;
+	}
+
+	if ( ferror (fptr) ) throw FileReadError();
+	fclose(fptr);
+
+	return count;
+}
+
+
+static size_t csvColumnCount(const char *file_name) {
+	FILE *fptr = fopen(file_name, "r");
+	if (fptr == NULL) throw FileNotFound();
+
+	char c;
+	std::size_t count = 1; // Assumes at least one column (non empty file). 
+	while ( (c = fgetc (fptr)) != EOF ) {
+		if (c == ',') count++;
+		else if (c == '\n') break;
+	}
+
+	if ( ferror (fptr) ) throw FileReadError();
+	fclose(fptr);
+
+	return count;
 }
 
 
 
+void Matrix::readCSV(const char *file_name) {
+
+	this->num_rows = csvRowCount(file_name);
+	this->num_cols = csvColumnCount(file_name);
+	this->allocateData();
+
+
+	FILE *fp = fopen(file_name, "r");
+	if (fp == NULL) throw FileNotFound();
+
+	int buff_size = (this->num_cols * sizeof(TYPE) + 1) * TYPE_SIZE;
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		char *row_data = new char[buff_size];
+		if (not fgets(row_data, buff_size, fp)) throw InvalidRead();
+
+		char *token;
+		token = std::strtok(row_data, SEP);
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			this->data[row][col] = atoi(token);
+			token = std::strtok(NULL, SEP);
+		}
+		delete[] row_data;
+	}
+
+	fclose(fp);
+}
+
+/****************************************************************************\
+|****************************************************************************|
+\****************************************************************************/
+
+
+
+
+/****************************************************************************\
+|*********************************OPERATORS**********************************|
+\****************************************************************************/
+      
+
+// No need to compare this->info, although may be faster to do that check.
 bool Matrix::operator==(const Matrix &rhs) const {
 	if (this->num_rows != rhs.num_rows or this->num_cols != rhs.num_cols) {
 		return false;
@@ -144,57 +221,13 @@ bool Matrix::operator==(const Matrix &rhs) const {
 	return true;
 }
 
-
-
-void Matrix::readCSV(const char *file_name) {
-
-	// clock_t t;
-	// t = clock();
-
-	FILE *fp = fopen(file_name, "r");
-	if (fp == NULL) {
-		// printf("No such file.\n");
-		exit(1);
-	} else {
-		// printf("Opened file.\n");
-	}
-
-	int buff_size = (this->num_cols * sizeof(TYPE) + 1) * 8;
-	for (std::size_t n_row = 0; n_row < this->num_rows; ++n_row) {
-		char * row_data = new char[buff_size];
-		if (not fgets(row_data, buff_size, fp)) throw InvalidRead();
-		char *token;
-		token = std::strtok(row_data, SEP);
-		for (std::size_t n_col = 0; n_col < this->num_cols; ++n_col) {
-			this->data[n_row][n_col] = atoi(token);
-			token = std::strtok(NULL, SEP);
-		}
-		delete[] row_data;
-	}
-
-	fclose(fp);
-
-
-
-
-	// t = clock() - t;
-	// std::cout << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
-}
-
-void Matrix::print() const {
-	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			std::cout << this->data[row][col] << " ";
-		}
-		std::cout << std::endl;
-	}
-
+bool Matrix::operator!=(const Matrix &rhs) const {
+	return not (*this == rhs);
 }
 
 
 
 Matrix Matrix::operator*(const Matrix &rhs) const {
-	// clock_t t = clock();
 
 	if (this->num_cols != rhs.num_rows) throw InvalidDimensions();
 
@@ -204,18 +237,12 @@ Matrix Matrix::operator*(const Matrix &rhs) const {
 			TYPE sum = 0;
 			for (std::size_t k = 0; k < this->num_cols; ++k) {
 				sum += this->data[row][k] * rhs.data[k][col];
-
 			}
 			product.data[row][col] = sum;
 		}
-
 	}
 
-	// t = clock() - t;
-	// std::cout << "naiveMultiply: " << t << ", " << ((float)t)/CLOCKS_PER_SEC << std::endl;
-
 	return product;
-
 }
 
 
@@ -244,6 +271,7 @@ Matrix Matrix::operator+(const Matrix &rhs) const {
 	return sum;
 }
 
+
 Matrix Matrix::operator+(TYPE scalar) const {
 	
 	Matrix sum(*this);
@@ -256,11 +284,6 @@ Matrix Matrix::operator+(TYPE scalar) const {
 }
 
 
-
-
-Matrix Matrix::operator-(TYPE scalar) const {
-	return Matrix(*this + (-scalar));
-}
 
 
 Matrix Matrix::Matrix::operator-(const Matrix &rhs) const {
@@ -277,30 +300,84 @@ Matrix Matrix::Matrix::operator-(const Matrix &rhs) const {
 
 
 
-bool Matrix::operator!=(const Matrix &rhs) const {
-	return not (*this == rhs);
+Matrix Matrix::operator-(TYPE scalar) const {
+	return Matrix(*this + (-scalar));
+}
+
+/****************************************************************************\
+|****************************************************************************|
+\****************************************************************************/
+
+
+
+
+// bool isUpperTriangular() {
+
+// }
+
+// bool isLowerTriangular() {
+
+// }
+
+// bool isZero() {
+
+// }
+
+// bool isIdentity() {
+
+// }
+
+
+
+/****************************************************************************\
+|***********************************TESTING**********************************|
+\****************************************************************************/
+
+
+void Matrix::print() const {
+	for (std::size_t row = 0; row < this->num_rows; ++row) {
+		for (std::size_t col = 0; col < this->num_cols; ++col) {
+			std::cout << this->data[row][col] << " ";
+		}
+		std::cout << std::endl;
+	}
+
 }
 
 
 
 
+/****************************************************************************\
+|**********************************ROUGHSTUFF********************************|
+\****************************************************************************/
 
 
 
+// int Matrix::my_atoi(const char *str) {
+//     while (*str == ' ') ++str; // skip leading whitespace
+//     int sign = 1;
+//     switch (*str) { // handle leading +/-
+//         case '-': ++str; sign = -1; break;
+//         case '+': ++str; break;
+//     }
+//     int value = 0;
+//     while (char c = *str) {
+//         if (c > '9' || value < 0) return 0; // non-digit, or overflow
+//         value *= 10;
+//         value += c - '0';
+//     }
+//     if (value < 0) return 0; // integer overflow
+//     return value * sign;
+// }
 
 
+// // Move Assignment
+// Matrix &Matrix::operator=(Matrix &&other) {
+// 	swap(*this, other);
+// 	std::cout << "Move Assignment" << std::endl;
+// 	return *this;
 
-
-
-
-
-
-
-
-
-
-
-
+// }
 
 
 
