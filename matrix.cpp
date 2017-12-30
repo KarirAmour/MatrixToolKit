@@ -177,7 +177,7 @@ void Matrix::readCSV(const char *file_name) {
 	FILE *fp = fopen(file_name, "r");
 	if (fp == NULL) throw FileNotFound();
 
-	int buff_size = (this->num_cols * sizeof(TYPE) + 1) * TYPE_SIZE;
+	std::size_t buff_size = (this->num_cols * sizeof(TYPE) + 1) * TYPE_SIZE;
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		char *row_data = new char[buff_size];
 		if (not fgets(row_data, buff_size, fp)) throw InvalidRead();
@@ -185,7 +185,7 @@ void Matrix::readCSV(const char *file_name) {
 		char *token;
 		token = std::strtok(row_data, SEP);
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			this->data[row][col] = atoi(token);
+			this->data[row][col] = ATOT(token);
 			token = std::strtok(NULL, SEP);
 		}
 		delete[] row_data;

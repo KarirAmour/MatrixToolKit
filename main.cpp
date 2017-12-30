@@ -38,6 +38,9 @@ bool strequal(char *a, char *b) {
 }
 
 
+
+
+
 // size_t csvColumnCount(const char *file_name) {
 // 	// if (fptr == NULL) throw FileReadError();
 // 	FILE *fptr = fopen(file_name, "r");
@@ -85,9 +88,6 @@ int main() {
 	// std::cout << "m2: " << csvColumnCount("m2.txt") << " " << csvRowCount("m2.txt") << std::endl;
 	// std::cout << "m3: " << csvColumnCount("m3.txt") << " " << csvRowCount("m3.txt") << std::endl;
 
-
-
-
 	Matrix a("m1.txt");
 	// a.info->isIdentity = true;
 	// a.print();
@@ -107,8 +107,8 @@ int main() {
 	c.print();
 	c = copyAssignment(b);
 
-	if (a != a) std::cout << "a != a" << std::endl;
-	if (a != b) std::cout << "a != b" << std::endl;
+	// if (a != a) std::cout << "a != a" << std::endl;
+	// if (a != b) std::cout << "a != b" << std::endl;
 	// Matrix b = a * a;
 	// Matrix c(b);
 	// Matrix d = c;

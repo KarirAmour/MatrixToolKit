@@ -4,8 +4,9 @@
 #include <cstddef>
 #include <string>
 
-#define TYPE int
-#define TYPE_SIZE 8
+#define TYPE float
+#define TYPE_SIZE 16
+#define ATOT atof
 #define SEP (",")
 
 
