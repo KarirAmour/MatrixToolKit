@@ -30,7 +30,9 @@ class Matrix {
 	void setIsZero();
 	void setIsIdentity();
 	void revalidateState();
+	
 public:
+
 	MatrixInfo *info;
 	Matrix(const char *file_name);
 	Matrix(std::size_t nrows = 0, std::size_t ncols = 0);
