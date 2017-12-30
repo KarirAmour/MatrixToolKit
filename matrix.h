@@ -1,22 +1,10 @@
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
+#include "info.h"
+
 #include <cstddef>
-#include <string>
 
-#define TYPE float
-#define TYPE_SIZE 16
-#define ATOT atof
-#define SEP (",")
-
-
-class FileNotFound {};
-class FileReadError {};
-class NoMemory {};
-class InvalidRow {};
-class InvalidCol {};
-class InvalidRead {};
-class InvalidDimensions {};
 
 struct MatrixInfo {
 	bool validState; // set false when matrix is changed.
@@ -72,6 +60,8 @@ public:
 	Matrix operator*(TYPE scalar) const;
 	Matrix operator+(TYPE scalar) const;
 	Matrix operator-(TYPE scalar) const;
+
+	TYPE *operator[](std::size_t index);
 
 	bool isUpperTriangular();
 	bool isLowerTriangular();

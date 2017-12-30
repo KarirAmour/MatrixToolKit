@@ -1,7 +1,5 @@
 #include "matrix.h"
-// #include <cstdlib>
-// #include <sstream>
-// #include <fstream>
+#include "info.h"
 #include <iostream>
 #include <ctime>
 #include <stdlib.h>
@@ -30,7 +28,7 @@ void Matrix::determineInfo() {
 }
 
 Matrix::Matrix(std::size_t nrows, std::size_t ncols) : 
-	num_rows{nrows}, num_cols{ncols}, data{NULL} {
+	num_rows{nrows}, num_cols{ncols}, data{nullptr} {
 
 		this->allocateData();
 		this->info = new MatrixInfo();
@@ -40,7 +38,7 @@ Matrix::Matrix(std::size_t nrows, std::size_t ncols) :
 void Matrix::allocateData() {
 
 	if (this->num_cols == 0 or this->num_rows == 0) {
-		this->data = NULL;
+		this->data = nullptr;
 		return;
 	}
 
@@ -84,8 +82,8 @@ Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_co
 	this->data = other.data;
 	this->info = other.info;
 
-	other.data = NULL;
-	other.info = NULL;
+	other.data = nullptr;
+	other.info = nullptr;
 
 	std::cout << "Move Constructor" << std::endl;
 }
@@ -133,7 +131,7 @@ Matrix &Matrix::operator=(Matrix other) {
 
 static size_t csvRowCount(const char *file_name) {
 	FILE *fptr = fopen(file_name, "r");
-	if (fptr == NULL) throw FileNotFound();
+	if (fptr == nullptr) throw FileNotFound();
 
 	char c;
 	std::size_t count = 1; // Assumes #rows >= 1
@@ -150,7 +148,7 @@ static size_t csvRowCount(const char *file_name) {
 
 static size_t csvColumnCount(const char *file_name) {
 	FILE *fptr = fopen(file_name, "r");
-	if (fptr == NULL) throw FileNotFound();
+	if (fptr == nullptr) throw FileNotFound();
 
 	char c;
 	std::size_t count = 1; // Assumes at least one column (non empty file). 
@@ -175,7 +173,7 @@ void Matrix::readCSV(const char *file_name) {
 
 
 	FILE *fp = fopen(file_name, "r");
-	if (fp == NULL) throw FileNotFound();
+	if (fp == nullptr) throw FileNotFound();
 
 	std::size_t buff_size = (this->num_cols * sizeof(TYPE) + 1) * TYPE_SIZE;
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
@@ -186,7 +184,7 @@ void Matrix::readCSV(const char *file_name) {
 		token = std::strtok(row_data, SEP);
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
 			this->data[row][col] = ATOT(token);
-			token = std::strtok(NULL, SEP);
+			token = std::strtok(nullptr, SEP);
 		}
 		delete[] row_data;
 	}
@@ -303,6 +301,12 @@ Matrix Matrix::Matrix::operator-(const Matrix &rhs) const {
 Matrix Matrix::operator-(TYPE scalar) const {
 	return Matrix(*this + (-scalar));
 }
+
+
+TYPE *Matrix::operator[](std::size_t index) {
+	return this->data[index];
+}
+
 
 /****************************************************************************\
 |****************************************************************************|
