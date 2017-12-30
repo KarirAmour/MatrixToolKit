@@ -19,12 +19,13 @@ class InvalidRead {};
 class InvalidDimensions {};
 
 struct MatrixInfo {
+	bool validState; // set false when matrix is changed.
 	bool isUpper;
 	bool isLower;
 	bool isZero;
 	bool isIdentity;
 
-	MatrixInfo() : isUpper{false}, isLower{false}, isZero{false}, isIdentity{false} {}
+	MatrixInfo() : validState{false}, isUpper{false}, isLower{false}, isZero{false}, isIdentity{false} {}
 };
 
 class Matrix {
@@ -36,7 +37,11 @@ class Matrix {
 
 	void determineInfo();
 
-
+	void setIsUpper();
+	void setIsLower();
+	void setIsZero();
+	void setIsIdentity();
+	void revalidateState();
 public:
 	MatrixInfo *info;
 	Matrix(const char *file_name);
@@ -68,10 +73,10 @@ public:
 	Matrix operator+(TYPE scalar) const;
 	Matrix operator-(TYPE scalar) const;
 
-	// bool isUpperTriangular();
-	// bool isLowerTriangular();
-	// bool isZero();
-	// bool isIdentity();
+	bool isUpperTriangular();
+	bool isLowerTriangular();
+	bool isZero();
+	bool isIdentity();
 
 	friend void swap(Matrix &first, Matrix &second);
 

@@ -41,46 +41,6 @@ bool strequal(char *a, char *b) {
 
 
 
-// size_t csvColumnCount(const char *file_name) {
-// 	// if (fptr == NULL) throw FileReadError();
-// 	FILE *fptr = fopen(file_name, "r");
-// 	char c;
-// 	std::size_t count = 1; // Assumes at least one column (non empty file). 
-// 	while ( (c = fgetc (fptr)) != EOF ) {
-// 		// std::cout << c << std::endl;
-
-// 		if (c == '\n') break;
-// 		if (c == ',') count++;
-// 	}
-
-// 	if ( ferror (fptr) ) throw FileReadError();
-// 	fclose(fptr);
-
-// 	// fseek(fptr, 0, SEEK_SET);
-
-// 	return count;
-// }
-
-// size_t csvRowCount(const char *file_name) {
-// 	// if (fptr == NULL) throw FileReadError();
-// 	FILE *fptr = fopen(file_name, "r");
-// 	std::size_t count = 1;
-// 	char c;
-// 	while ( ((c = fgetc (fptr))!= EOF) ) {
-// 		// std::cout << c << std::endl;
-// 		if (c == '\n') count++;
-// 	}
-
-// 	if ( ferror (fptr) ) throw FileReadError();
-
-// 	// fseek(fptr, 0, SEEK_SET);
-// 	fclose(fptr);
-
-// 	return count;
-// }
-
-
-
 int main() {
 
 

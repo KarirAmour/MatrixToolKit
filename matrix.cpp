@@ -309,23 +309,99 @@ Matrix Matrix::operator-(TYPE scalar) const {
 \****************************************************************************/
 
 
+// Update all flags and update validState to true
+void Matrix::revalidateState() {
+	this->setIsUpper();
+	this->setIsLower();
+	this->setIsIdentity();
+	this->setIsZero();
+	this->info->validState = true;
+}
 
 
-// bool isUpperTriangular() {
 
-// }
+// isUpperTriangular and isLowerTriangular duplicates code. oops.
+bool Matrix::isUpperTriangular() {
 
-// bool isLowerTriangular() {
+	if (not this->info->validState) this->revalidateState();
+	return this->info->isUpper;
 
-// }
+}
 
-// bool isZero() {
+// raw_* are only called when validState is false
 
-// }
+// Updates isUpper flag
+void Matrix::setIsUpper() {
 
-// bool isIdentity() {
+	this->info->isUpper = false;
+	std::size_t col = 0;
+	for (std::size_t row = 0; row > col; ++row) {
+		for (col = 0; col <= row; ++col) {
+			if (this->data[row][col] != 0) return;
+		}
+	}
+	this->info->isUpper = true;
+}
 
-// }
+// isUpperTriangular and isLowerTriangular duplicates code. oops.
+bool Matrix::isLowerTriangular() {
+
+	if (not this->info->validState) this->revalidateState();
+	return this->info->isLower;
+
+}
+
+// Updates isLower flag
+void Matrix::setIsLower() {
+
+	this->info->isLower = false;
+	std::size_t col = 0;
+	for (std::size_t row = 0; row > col; ++row) {
+		for (col = row; col < this->num_cols; ++col) {
+			if (this->data[row][col] != 0) return;
+		}
+	}
+	this->info->isLower = true;
+}
+
+
+bool Matrix::isZero() {
+	if (not this->info->validState) this->revalidateState();
+	return this->info->isZero;
+}
+
+void Matrix::setIsZero() {
+
+	this->info->isZero = false;
+	for (std::size_t row = 0; row < this-> num_rows; ++row) {
+		for (std::size_t col = 0; col < this-> num_cols; ++col) {
+			if (this->data[row][col] != 0) return;
+		}
+	}
+	this->info->isZero = true;
+
+}
+
+bool Matrix::isIdentity() {
+	if (not this->info->validState) this->revalidateState();
+	return this->info->isIdentity;
+}
+
+
+void Matrix::setIsIdentity() {
+	this->info->isIdentity = false;
+	if (num_cols != num_rows) return;
+
+	for (std::size_t row = 0; row < this-> num_rows; ++row) {
+		for (std::size_t col = 0; col < this-> num_cols; ++col) {
+			if (row == col) {
+				if (this->data[row][col] != 1) return;
+			} else if (this->data[row][col] != 0) return;
+		}
+	}
+	this->info->isIdentity = true;	
+
+}
 
 
 
