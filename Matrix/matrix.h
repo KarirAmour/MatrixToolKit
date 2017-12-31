@@ -4,6 +4,9 @@
 #include "info.h"
 
 #include <cstddef>
+#include <vector>
+
+// template <typename> class std::vector<double>;
 
 
 struct MatrixInfo {
@@ -32,6 +35,14 @@ class Matrix {
 	void revalidateState();
 	
 public:
+
+	// CONNSIDER named constructor idiom (make ctors private 
+	// and add static methods that call constructors
+	// static ZeroMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
+	// static IdentityMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
+	// static OnesMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
+	// static PermutationMatrix(const std::vector<TYPE> &vec);
+	// static InverseMatrix(const Matrix &m);
 
 	MatrixInfo *info;
 	Matrix(const char *file_name);
@@ -64,6 +75,7 @@ public:
 	Matrix operator-(TYPE scalar) const;
 
 	TYPE *operator[](std::size_t index);
+	void permute(std::vector<TYPE> permutation);
 
 	bool isUpperTriangular();
 	bool isLowerTriangular();

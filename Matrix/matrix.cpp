@@ -7,7 +7,6 @@
 
 
 
-
 /****************************************************************************\
 |***********************************BIG FIVE*********************************|
 \****************************************************************************/
@@ -309,8 +308,22 @@ TYPE *Matrix::operator[](std::size_t index) {
 
 
 /****************************************************************************\
-|****************************************************************************|
+|*********************************** MISC ***********************************|
 \****************************************************************************/
+
+// Need to define "unpermute as well".
+// Though if eventually multithreading gets involved, may need to 
+// change function to return a new permuted matrix...
+// fml
+void Matrix::permute(std::vector<TYPE> permutation) {
+	if (permutation.size() != this->getRows()) throw InvalidDimensions();
+
+	std::vector<TYPE *> swp(this->getRows());
+	for (std::size_t i = 0; i < this->getRows(); ++i) swp[i] = this->data[i];
+	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swp[permutation[i]];
+
+}
+
 
 
 // Update all flags and update validState to true
