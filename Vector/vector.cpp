@@ -134,9 +134,11 @@ TYPE Vector::set(std::size_t index, TYPE value) {
 
 bool Vector::operator==(const Vector &rhs) const {
 
-	if (this->vec_size != rhs.vec_size) return false;
-	if (this->is_zero != rhs.is_zero) return false;
-	if (this->is_basis != rhs.is_basis) return false;
+	if (this->flags_valid and rhs.flags_valid) {
+		if (this->vec_size != rhs.vec_size) return false;
+		if (this->is_zero != rhs.is_zero) return false;
+		if (this->is_basis != rhs.is_basis) return false;
+	}
 
 	for (std::size_t i = 0; i < this->vec_size; ++i) {
 		if (this->vec_data[i] != rhs.vec_data[i]) return false;
@@ -154,27 +156,11 @@ void Vector::append(TYPE ele) {
 	if (this->vec_size == this->capacity) {
 		this->resize(this->capacity);
 	}
-	this->vec_data[this->vec_size] = ele;
-	this->vec_size += 1;
+	this->vec_size += 1; // ISSUES HERE
+	elementUpdateFlags(this->vec_size, ele); // AND HERE
+	this->vec_data[this->vec_size] = ele; // AND HERE
 
-	elementUpdateFlags(this->vec_size, ele);
 }
-
-void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
-	if (this->flags_valid) {
-		if (ele != 0) {
-			if (this->is_zero) {
-				this->is_zero = false;
-				if (ele == 1) this->is_basis = true;
-			} else {
-				this->is_basis = false;
-			}
-			this->vec_sum += ele;
-			this->norm_sq += ele * ele;
-		}
-	}
-}
-
 
 
 
@@ -183,12 +169,36 @@ void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
 \****************************************************************************/
 
 void Vector::updateFlags() {
+	this->calculateIsZero(); // Order in which these are called matters.
 	this->calculateIsBasis();
-	this->calculateIsZero();
 	this->calculateVecSum();
 	this->calculateSquaredNorm();
 	this->flags_valid = true;
 }
+
+// ISSUES XD
+void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
+	if (this->flags_valid) {
+		TYPE old_ele = this->vec_data[index];
+		if (ele != 0) {
+			this->vec_sum += ele - old_ele;
+			this->norm_sq += (ele * ele) - (old_ele * old_ele);
+			this->sum_flag = true;
+			this->norm_sq_flag = true;
+			this->is_zero = false;
+		} else {
+			++this->zero_count;
+		}
+		if (this->is_basis) {
+			this->is_basis = (ele == 0) and (old_ele == 0);
+		} else {
+			this->calculateIsBasis();
+		}
+	} else {
+		this->updateFlags();
+	}
+}
+
 
 
 TYPE Vector::squaredNorm() {
@@ -197,7 +207,8 @@ TYPE Vector::squaredNorm() {
 	}
 	return this->norm_sq; 
 }
-
+// Can optimize by combining this with Sum/Zero/Basis.
+// Will cross that bridge when in optimize phase.
 void Vector::Vector::calculateSquaredNorm() {
 	this->norm_sq = 0;
 	for (std::size_t i = 0; i < this->vec_size; ++i) {
