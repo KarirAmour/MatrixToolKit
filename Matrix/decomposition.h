@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 
+class SomeError {};
 
 
 typedef std::vector<float> Vector;
@@ -24,13 +25,5 @@ void LUFactorize(Matrix &M, Matrix &L, Matrix &U);
 
 
 // Solves Ax = b and returns x
-// Vector backSolve(Matrix &m, Vector &b);
-// Vector backSolve(Matrix &m, Vector &b) {
-// 	if (m.getRows() != m.getCols() or m.getRows() != b.size()) 
-// 		throw InvalidDimensions();
-
-// 	Vector a = Vector(b.size());
-// 	return a;
-// }
-
+Vector BackSolve(Matrix &A, Vector &b, Matrix &L, Matrix &U);
 #endif

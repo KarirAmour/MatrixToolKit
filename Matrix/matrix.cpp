@@ -90,7 +90,6 @@ Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_co
 
 
 void swap(Matrix &first, Matrix &second) {
-	// enable ADL (not necessary in our case, but good practice)
 	using std::swap;
 
 	swap(first.num_rows, second.num_rows);
@@ -428,6 +427,7 @@ void Matrix::setIsIdentity() {
 
 
 void Matrix::print() const {
+	std::cout.precision(2);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
 			std::cout << this->data[row][col] << " ";

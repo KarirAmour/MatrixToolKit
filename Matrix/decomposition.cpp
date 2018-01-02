@@ -86,25 +86,25 @@ void LUFactorize(Matrix &A, Matrix &L, Matrix &U) {
 			U[row][col] = 0;
 		}
 	}
-	std::cout << "L SIZE: " << L.getRows() << ", " << L.getRows() << std::endl;
-	std::cout << "U SIZE: " << U.getRows() << ", " << U.getRows() << std::endl;
+	// std::cout << "L SIZE: " << L.getRows() << ", " << L.getRows() << std::endl;
+	// std::cout << "U SIZE: " << U.getRows() << ", " << U.getRows() << std::endl;
 
 	Vector permutation = Pivot(A); // Pivot based on largest elements
 	A.permute(permutation);	// Permute A based on perm
 	std::cout << "Permuted A." << std::endl;
+	A.print();
 
 	for (std::size_t row = 0; row < A.getRows(); ++row) {
-		std::cout << "ROW: " << row << std::endl;
-
+		// std::cout << "ROW: " << row << std::endl;
 		for (std::size_t col = 0; col < A.getCols(); ++col) {
-			std::cout << "COL: " << col << std::endl;
+			// std::cout << "COL: " << col << std::endl;
 
 			float sum;
 			if (col <= row) {
 				sum = 0;
 				for (std::size_t k = 0; k < col; ++k) {
 					sum += L[col][k] * U[k][row];
-					std::cout << "K1: " << k << std::endl;
+					// std::cout << "K1: " << k << std::endl;
 
 				}
 				// float temp = ;
@@ -113,7 +113,7 @@ void LUFactorize(Matrix &A, Matrix &L, Matrix &U) {
 			if (col >= row) {
 				sum = 0;
 				for (std::size_t k = 0; k < row; ++k) {
-					std::cout << "K2: " << k << ", " << row << ", " << col << std::endl;
+					// std::cout << "K2: " << k << ", " << row << ", " << col << std::endl;
 
 					sum += L[col][k] * U[k][row];
 				}
@@ -122,5 +122,61 @@ void LUFactorize(Matrix &A, Matrix &L, Matrix &U) {
 		}
 
 	}
+	std::cout << "L:" << std::endl;
+	L.print();
+	std::cout << "U:" << std::endl;
+	U.print();
+	std::cout << "P:" << std::endl;
+	printVector(permutation);
 
+}
+
+Vector BackSolve(Matrix &A, Vector &b, Matrix &L, Matrix &U) {
+	if (A.getRows() != A.getCols() or A.getRows() != b.size()) 
+		throw InvalidDimensions();
+	
+	int dim = b.size();
+
+	// LU Decompose A into Lower L and Upper U
+	// Matrix L(dim, dim);
+	// Matrix U(dim, dim);
+	LUFactorize(A, L, U);
+	L.print();
+	U.print();
+	std::cout << "Factorized." << std::endl;
+
+	 // Solve Ly = b for y
+	Vector y(b.size());
+	std::cout << "y.size(): " << y.size() << std::endl;
+
+	if (L[0][0] != 1) throw SomeError();
+	y[0] = b[0];
+	std::cout << "y[0] set." << std::endl;
+	std::cout << "Dim: " << dim << std::endl;
+
+	for (int i = 0; i < dim; ++i) {
+		std::cout << "ROW: " << i << std::endl;
+
+		float sum = 0;
+		for (int j = 0; j < (i - 1); ++j) {
+			std::cout << "COL: " << j << std::endl;
+			sum += L[i][j] * y[j];
+		}
+		y[i] = sum;
+	}
+	printVector(y);
+
+	//  // Solve Ux = y for x
+	// Vector x = Vector(dim);
+	// if (U[dim - 1][dim - 1] != 1) throw SomeError();
+	// y[dim - 1] = b[dim - 1];
+
+	// for (std::size_t i = dim - 1; i != 0; --i) {
+	// 	float sum = 0;
+	// 	for (std::size_t j = 0; j < (i - 1); ++i) {
+	// 		sum += U[i][j] * x[j];
+	// 	}
+	// }
+
+	return y;
 }
