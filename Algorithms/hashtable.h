@@ -6,7 +6,6 @@
 
 class HashTable {
 public:
-	struct Bucket;
 
 	HashTable(unsigned int size = INITIAL_SIZE);
 
@@ -14,11 +13,13 @@ public:
 
 	~HashTable();
 
+
+private:
+	struct Bucket;
+
 	unsigned int table_size;
 	Bucket *hashtable;
-
 	static unsigned int ELFHash(const char *key);
-
 
 };
 
