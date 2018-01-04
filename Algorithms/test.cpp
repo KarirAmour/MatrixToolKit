@@ -17,9 +17,10 @@ int main() {
 
 
 	HashTable table;
-	cout << HashTable::ELFHash(a) << endl;
-	table = HashTable();
-	table[a];
+	// cout << HashTable::ELFHash(a) << endl;
+	// table = HashTable();
+	table[a] = 15;
+	table[a] = 20;
 	cout << table[a] << endl;
 
 	return 0;
