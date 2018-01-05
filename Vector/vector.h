@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
-#define INIT_SIZE 8
+#define INIT_SIZE 32
 #define CHECK_BOUNDS 1
 
 
@@ -20,14 +20,12 @@ class Vector {
 	/******* FLAGS ******/
 	bool flags_valid;
 	bool is_zero;
-	bool is_basis;
+	bool zero_updated;
 	bool sum_flag;
 	bool norm_sq_flag;
-
 	/******* INFO *******/
 
 	TYPE *vec_data;
-
 
 	TYPE vec_sum;
 	TYPE norm_sq;
@@ -54,7 +52,7 @@ class Vector {
 
 public:
 
-	Vector(std::size_t length);
+	Vector(std::size_t length = 0);
 	Vector(std::size_t length, TYPE init);
 	Vector(const Vector &vec);
 	Vector(std::vector<TYPE> &vec);
