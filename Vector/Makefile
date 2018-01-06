@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++14 -O3 -Wall -Wextra -pedantic -Werror=vla -MMD
 EXEC = test
-OBJECTS = test.o vector.o info.o
+OBJECTS = test.o vector.o vectorinfo.o info.o
 DEPENDS = ${OBJECTS:.o=.d}
 
 ${EXEC}: ${OBJECTS}

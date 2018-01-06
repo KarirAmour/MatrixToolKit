@@ -2,45 +2,32 @@
 #define _VECTOR_H_
 
 #include "info.h"
+#include "vectorinfo.h"
 #include <cstdlib>
 #include <vector>
+#include <memory>
 
 #define INIT_SIZE 32
 #define CHECK_BOUNDS 1
 
 
 
-class OutOfBoundsException {};
-
 class Vector {
 	
+	friend class VectorInfo;
+	
+	/******* INFO *******/
+
 	std::size_t vec_size;
 	std::size_t capacity;
 
-	/******* FLAGS ******/
-	bool flags_valid;
-	bool is_zero;
-	bool zero_updated;
-	bool sum_flag;
-	bool norm_sq_flag;
-	/******* INFO *******/
-
 	TYPE *vec_data;
-
-	TYPE vec_sum;
-	TYPE norm_sq;
-	std::size_t zero_count;
+	VectorInfo *info;
 
 	/***** METHODS ******/
 
 	void allocateData(std::size_t amount);
 	void resize(std::size_t amount);
-
-	void updateFlags();
-	void calculateVecSum();
-	void calculateSquaredNorm();
-	void calculateIsBasis();
-	void calculateIsZero();
 
 	// Updates flags based on element TO BE added
 	// If added element first, forced to check ENTIRE vector
@@ -49,23 +36,35 @@ class Vector {
 	// get&set elements without needing to update flags at each access.
 	TYPE &operator[] (std::size_t index);
 
-
 public:
 
 	Vector(std::size_t length = 0);
 	Vector(std::size_t length, TYPE init);
 	Vector(const Vector &vec);
 	Vector(std::vector<TYPE> &vec);
+
 	~Vector();
 
+	Vector &operator=(Vector other);
 	bool operator==(const Vector &rhs) const;
 	bool operator!=(const Vector &rhs) const;
+
+	TYPE operator*(const Vector &rhs) const;
+	
+	Vector &operator+=(const Vector &rhs);
+	Vector &operator-=(const Vector &rhs);
+	
+	Vector &operator+=(const TYPE rhs);
+	Vector &operator-=(const TYPE rhs);
+	Vector &operator*=(const TYPE rhs);
+	Vector &operator/=(const TYPE rhs);
+
 
 	TYPE get(std::size_t index) const;
 	TYPE set(std::size_t index, TYPE value);
 
 
-	TYPE Sum();
+	TYPE sum();
 	TYPE squaredNorm();
 
 	void append(TYPE ele);
@@ -78,30 +77,15 @@ public:
 	std::size_t getCapacity() const { return this->capacity; }
 	std::size_t size() const { return this->vec_size; }
 
+	friend void swap(Vector &first, Vector &second);
 	
 };
 
+Vector operator+(Vector lhs, const Vector &rhs);
+Vector operator-(Vector lhs, const Vector &rhs);
+Vector operator*(Vector lhs, const Vector &rhs);
+Vector operator/(Vector lhs, const Vector &rhs);
 
-// struct VectorInfo {
-// /*********** FLAGS *********/
-// 	bool flagsValid;
-// 	bool isZero;
-// 	bool isBasis;
-
-// 	bool vecSumUpdated;
-// 	bool normSqUpdated;
-// 	TYPE vecSum;
-// 	TYPE normSq;
-// /***************************/
-// 	VectorInfo() : 
-// 	flagsValid{false}, isZero{false}, isBasis{false}, 
-// 	vecSumUpdated{false}, normSqUpdated{false} {}
-
-// 	void calculateVecSum();
-// 	void calculateSquaredNorm();
-// 	void calculateIsBasis();
-// 	void calculateIsZero();
-// };
 
 
 #endif
