@@ -3,14 +3,23 @@
 #include <cassert>
 
 #include "vector.h"
+#include "testvector.h"
 
-using namespace std;
+
+// using namespace std;
 
 
 
 
 int main() {
 
+    TestVector test;
+    test.Test();
+
+    return 0;
+}
+
+/*
     cout << "Test 1." << endl;
     Vector v(10);
     assert(v.size() == 10);
@@ -69,5 +78,5 @@ int main() {
     assert(not v3.isBasisVector());
     assert(v3.squaredNorm() == 0);
     assert(v3.sum() == 0);
-    return 0;
-}
+*/
+

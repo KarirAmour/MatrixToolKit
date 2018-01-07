@@ -92,7 +92,7 @@ Vector::~Vector() {
 void Vector::allocateData(std::size_t amount) {
 	// std::cout << "allocData(" << amount <<")" << std::endl;
 
-	std::cout << nextPowerOfTwo(amount) << std::endl;
+	// std::cout << nextPowerOfTwo(amount) << std::endl;
 	this->vec_size = amount;
 	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
 	this->vec_data = new TYPE[this->capacity];
@@ -434,7 +434,7 @@ bool Vector::isZeroVector() {
 
 
 void Vector::print() const {
-	std::cout << this->vec_size << " " << this->size() << std::endl;
+	// std::cout << this->vec_size << " " << this->size() << std::endl;
 	for (std::size_t i = 0; i < (this->vec_size); ++i) {
 		std::cout << this->vec_data[i] << " ";
 	}

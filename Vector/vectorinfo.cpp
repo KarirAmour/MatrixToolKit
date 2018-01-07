@@ -1,5 +1,6 @@
 #include "vectorinfo.h"
 #include "vector.h"
+#include <iostream>
 
 VectorInfo::VectorInfo(bool zeroflg, bool sumflg, bool normflg, 
 		std::size_t zero, TYPE sum, TYPE norm) :
@@ -44,7 +45,7 @@ void VectorInfo::calculateVecSum(Vector *vec) {
 // Can optimize by combining this with Sum/Zero/Basis.
 // Will cross that bridge when in optimize phase.
 void VectorInfo::calculateSquaredNorm(Vector *vec) {
-
+	std::cout << "calcNS" << std::endl;
 	this->norm_sq = 0;
 	std::size_t i = 0;    
 	for (; (i - 4) < vec->vec_size; ++i) {
@@ -53,7 +54,9 @@ void VectorInfo::calculateSquaredNorm(Vector *vec) {
 		this->norm_sq += vec->vec_data[i + 2] * vec->vec_data[i + 2];
 		this->norm_sq += vec->vec_data[i + 3] * vec->vec_data[i + 3];
 	}
-	for (; i < vec->vec_size; ++i) this->norm_sq += vec->vec_data[i];
+	for (; i < vec->vec_size; ++i) {
+		this->norm_sq += vec->vec_data[i] * vec->vec_data[i];
+	}
     this->norm_flag = true;
 }
 

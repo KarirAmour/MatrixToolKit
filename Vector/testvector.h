@@ -15,8 +15,8 @@ class TestVector {
 
 public:
 
-    TestVector();
 
+    void Test();
 
 
 };

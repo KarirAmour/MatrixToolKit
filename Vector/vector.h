@@ -50,7 +50,7 @@ public:
 	bool operator!=(const Vector &rhs) const;
 
 	TYPE operator*(const Vector &rhs) const;
-	
+
 	Vector &operator+=(const Vector &rhs);
 	Vector &operator-=(const Vector &rhs);
 	
@@ -81,10 +81,10 @@ public:
 	
 };
 
-Vector operator+(Vector lhs, const Vector &rhs);
-Vector operator-(Vector lhs, const Vector &rhs);
-Vector operator*(Vector lhs, const Vector &rhs);
-Vector operator/(Vector lhs, const Vector &rhs);
+Vector operator+(Vector lhs, const TYPE rhs);
+Vector operator-(Vector lhs, const TYPE rhs);
+Vector operator*(Vector lhs, const TYPE rhs);
+Vector operator/(Vector lhs, const TYPE rhs);
 
 
 
