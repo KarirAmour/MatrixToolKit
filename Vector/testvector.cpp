@@ -110,6 +110,21 @@ bool TestVector::testOperators() {
     assert((small3 * small3) == small3.squaredNorm());
     assert((small3 * small2) == small2.squaredNorm());
 
+    double s1x3 = small1 * small3;
+    assert(s1x3 == 90.0);
+
+    Vector s3p2 = small3 + small2;
+    small3 *= 2;
+    assert(s3p2 == small3);
+    small3.print();
+    s3p2.print(); 
+    small3 /= 2;
+    s3p2 -= 6;
+    small3.print();
+    s3p2.print();
+    assert(small3 == s3p2);
+    
+
     // Assignment operator
 
 

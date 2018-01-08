@@ -53,6 +53,8 @@ public:
 
 	Vector &operator+=(const Vector &rhs);
 	Vector &operator-=(const Vector &rhs);
+	Vector operator+(Vector &rhs);
+	Vector operator-(Vector &rhs);
 	
 	Vector &operator+=(const TYPE rhs);
 	Vector &operator-=(const TYPE rhs);

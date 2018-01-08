@@ -215,6 +215,15 @@ Vector &Vector::operator-=(const Vector &rhs) {
 	return *this;
 }
 
+Vector Vector::operator+(Vector &rhs) {
+	rhs += *this;
+	return rhs;
+}
+Vector Vector::operator-(Vector &rhs) {
+	rhs -= *this;
+	return rhs;
+}
+
 // extern SCALAR_ADDITIVE_IDENTITY = 0;
 Vector &Vector::operator+=(const TYPE rhs) {
 	if (rhs == 0) return *this;
@@ -280,8 +289,8 @@ Vector &Vector::operator*=(const TYPE rhs) {
 }
 
 Vector &Vector::operator/=(const TYPE rhs) {
-
-	*this *= rhs;
+	if (rhs == 0) throw DivisionByZeroError();
+	*this *= 1 / rhs;
 
 	return *this;
 }
