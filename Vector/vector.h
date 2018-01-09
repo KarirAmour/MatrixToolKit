@@ -72,7 +72,6 @@ class Vector {
 		// Can optimize by combining this with Sum/Zero/Basis.
 		// Will cross that bridge when in optimize phase.
 		void calculateSquaredNorm(Vector<L> *vec) {
-			std::cout << "calcNS" << std::endl;
 			this->norm_sq = 0;
 			std::size_t i = 0;    
 			for (; (i - 4) < vec->vec_size; ++i) {
@@ -185,7 +184,6 @@ Vector<T>::Vector(std::vector<T> &vec) {
 
 	this->info = new VectorInfo<T>();
 	std::size_t length = vec.size();
-	// std::cout << "Entered Vector(std::vector v) " << vec.size() << std::endl;
 	this->allocateData(length);
 
 	for (std::size_t i = 0; i < length; ++i) {
@@ -249,13 +247,9 @@ Vector<T>::~Vector() {
 // Should only be called in constructor, else resize.
 template <typename T>
 void Vector<T>::allocateData(std::size_t amount) {
-	// std::cout << "allocData(" << amount <<")" << std::endl;
-
-	// std::cout << nextPowerOfTwo(amount) << std::endl;
 	this->vec_size = amount;
 	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
 	this->vec_data = new T[this->capacity];
-	// std::cout << "Exiting allocData" << std::endl;
 
 }
 
@@ -286,30 +280,23 @@ void Vector<T>::resize(std::size_t amount) {
 template <typename T>
 bool Vector<T>::operator==(const Vector<T> &rhs) const {
 	if (this->vec_size != rhs.vec_size) {
-		// std::cout << "size!=size" << std::endl;
 		return false;
 	}
 
 	if ((this->info->zero_flag and rhs.info->zero_flag) and 
 		(this->info->zero_count != rhs.info->zero_count)) {
-		// std::cout << "cnt!=cnt" << std::endl;
-		// std::cout <<  this->info->zero_count << " != " << rhs.info->zero_count << std::endl;
 		return false;
 	}
 	if ((this->info->sum_flag and rhs.info->sum_flag) and 
 		(this->info->vec_sum != rhs.info->vec_sum)) {
-		// std::cout << "sum!=sum" << std::endl;
-		// std::cout <<  this->info->vec_sum << " != " << rhs.info->vec_sum << std::endl;
 		return false;
 	}
 	if ((this->info->norm_flag and rhs.info->norm_flag) and 
 		(this->info->norm_sq != rhs.info->norm_sq)) {
-		// std::cout << "norm!=norm" << std::endl;
 		return false;
 	}
 	for (std::size_t i = 0; i < this->vec_size; ++i) {
 		if (this->vec_data[i] != rhs.vec_data[i]) { 
-			// std::cout << i << " != i" << std::endl;
 			return false;
 		}
 	}
@@ -563,12 +550,6 @@ void Vector<T>::append(T ele) {
 
 /************************************ MISC **********************************/
 
-// void Vector<T>::updateFlags() {
-// 	this->info->countZeros();
-// 	this->info->calculateVecSum();
-// 	this->info->calculateSquaredNorm();
-// }
-
 // If a given flag is updated, updates info according to what it would
 //  be with ele replacing the element at index
 template <typename T>
@@ -632,7 +613,6 @@ bool Vector<T>::isZeroVector() {
 
 template <typename T>
 void Vector<T>::print() const {
-	// std::cout << this->vec_size << " " << this->size() << std::endl;
 	for (std::size_t i = 0; i < (this->vec_size); ++i) {
 		std::cout << this->vec_data[i] << " ";
 	}
