@@ -1,7 +1,7 @@
 #include <iostream>
 #include "matrix.h"
-#include "decomposition.h"
-// #include "../Vector/vector.h"
+// #include "decomposition.h"
+#include "vector.h"
 
 
 int main() {
@@ -12,7 +12,7 @@ int main() {
 	Matrix L(A.getRows(), A.getCols());
 	Matrix U(A.getRows(), A.getCols());
 	std::cout << "L:"<< std::endl;
-	LUFactorize(A, L, U);
+	// LUFactorize(A, L, U);
 
 	// std::vector<float> b{3, 13, 4};
 	// // LUFactorize(A, L, U);
@@ -32,9 +32,9 @@ int main() {
 	Matrix b("ludec2.txt");
 	b.print();
 
-	Vector perm = Pivot(b);
+	// Vector perm = Pivot(b);
 
-	b.permute(perm);
+	// b.permute(perm);
 	b.print();
 
 

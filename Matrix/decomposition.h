@@ -9,7 +9,7 @@
 class SomeError {};
 
 
-typedef std::vector<float> Vector;
+// typedef std::vector<float> Vector;
 
 
 
