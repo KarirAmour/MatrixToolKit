@@ -156,25 +156,10 @@ public:
 	
 };
 
-// template<typename T> Vector<T> operator+(Vector<T> lhs, const T rhs);
-// template<typename T> Vector<T> operator-(Vector<T> lhs, const T rhs);
-// template<typename T> Vector<T> operator*(Vector<T> lhs, const T rhs);
-// template<typename T> Vector<T> operator/(Vector<T> lhs, const T rhs);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/********************************** BIG FIVE ********************************/
+/******************************* CONSTRUCTORS ********************************/
 
 template <typename T>
 Vector<T>::Vector(std::size_t length) : 
@@ -218,7 +203,6 @@ Vector<T>::Vector(std::vector<T> &vec) {
 }
 
 // Copy Constructor
-
 template <typename T>
 Vector<T>::Vector(const Vector<T> &other) : 
 	vec_size{other.vec_size}, capacity{other.capacity}, 
@@ -231,7 +215,7 @@ Vector<T>::Vector(const Vector<T> &other) :
 	}
 }
 
-
+// Overloading swap to optimize copy and move assignment
 template <typename T>
 void Vector<T>::swap(Vector<T> &first, Vector<T> &second) noexcept {
 	using std::swap;
@@ -242,8 +226,9 @@ void Vector<T>::swap(Vector<T> &first, Vector<T> &second) noexcept {
 	swap(first.info, second.info);
 
 }
-// Copy Assigment
 
+
+// Copy Assigment
 template <typename T>
 Vector<T> &Vector<T>::operator=(Vector<T> other) {
 
@@ -251,6 +236,7 @@ Vector<T> &Vector<T>::operator=(Vector<T> other) {
 	return *this;
 }
 
+// Destructor
 template <typename T>
 Vector<T>::~Vector() {
 	delete this->info;
@@ -261,7 +247,6 @@ Vector<T>::~Vector() {
 /****************************** DATA ALLOCATION *****************************/
 
 // Should only be called in constructor, else resize.
-
 template <typename T>
 void Vector<T>::allocateData(std::size_t amount) {
 	// std::cout << "allocData(" << amount <<")" << std::endl;
@@ -275,8 +260,7 @@ void Vector<T>::allocateData(std::size_t amount) {
 }
 
 // Can only increase size
-// Enable ability to decrease size?
-
+// Should enable ability to decrease size?
 template <typename T>
 void Vector<T>::resize(std::size_t amount) {
 
@@ -297,11 +281,8 @@ void Vector<T>::resize(std::size_t amount) {
 
 /******************************** OPERATIONS ********************************/
 
-
-
 // Will need 'approximate' equality operator
 // Possibly cast result to float and then compare
-
 template <typename T>
 bool Vector<T>::operator==(const Vector<T> &rhs) const {
 	if (this->vec_size != rhs.vec_size) {
