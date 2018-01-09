@@ -1,16 +1,18 @@
-#include "vectorinfo.h"
+// #include "vectorinfo.h"
 #include "vector.h"
 #include <iostream>
 
-VectorInfo::VectorInfo(bool zeroflg, bool sumflg, bool normflg, 
-		std::size_t zero, TYPE sum, TYPE norm) :
+template<typename T>
+VectorInfo<T>::VectorInfo(bool zeroflg, bool sumflg, bool normflg, 
+		std::size_t zero, T sum, T norm) :
     zero_flag{zeroflg}, sum_flag{sumflg}, norm_flag{normflg}, 
     zero_count{zero}, vec_sum{sum}, norm_sq{norm} {}
 
 // All three methods use loop unrolling
 //  Though may be more efficient to create one method called updateAllInfo(),
 //   and loop through vector all in one   
-void VectorInfo::countZeros(Vector *vec) {
+template<typename T>
+void VectorInfo<T>::countZeros(Vector<T> *vec) {
 
 	// By subtracting the number of zeros, we save on
 	// this->data[i] != 0 checks (not sure if actually true)
@@ -27,7 +29,8 @@ void VectorInfo::countZeros(Vector *vec) {
 }
 
 // Sums the elements in vector
-void VectorInfo::calculateVecSum(Vector *vec) {
+template<typename T>
+void VectorInfo<T>::calculateVecSum(Vector<T> *vec) {
 
 	this->vec_sum = 0;
 	std::size_t i = 0;    
@@ -44,7 +47,8 @@ void VectorInfo::calculateVecSum(Vector *vec) {
 
 // Can optimize by combining this with Sum/Zero/Basis.
 // Will cross that bridge when in optimize phase.
-void VectorInfo::calculateSquaredNorm(Vector *vec) {
+template<typename T>
+void VectorInfo::calculateSquaredNorm(Vector<T> *vec) {
 	std::cout << "calcNS" << std::endl;
 	this->norm_sq = 0;
 	std::size_t i = 0;    
@@ -59,4 +63,3 @@ void VectorInfo::calculateSquaredNorm(Vector *vec) {
 	}
     this->norm_flag = true;
 }
-

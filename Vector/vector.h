@@ -11,18 +11,18 @@
 #define CHECK_BOUNDS 1
 
 
-
+template <typename T>
 class Vector {
 	
-	friend class VectorInfo;
+	friend class VectorInfo<T>;
 	
 	/******* INFO *******/
 
 	std::size_t vec_size;
 	std::size_t capacity;
 
-	TYPE *vec_data;
-	VectorInfo *info;
+	T *vec_data;
+	VectorInfo<T> *info;
 
 	/***** METHODS ******/
 
@@ -31,17 +31,17 @@ class Vector {
 
 	// Updates flags based on element TO BE added
 	// If added element first, forced to check ENTIRE vector
-	void elementUpdateFlags(std::size_t index, TYPE ele);
+	void elementUpdateFlags(std::size_t index, T ele);
 
 	// get&set elements without needing to update flags at each access.
-	TYPE &operator[] (std::size_t index);
+	T &operator[] (std::size_t index);
 
 public:
 
 	Vector(std::size_t length = 0);
-	Vector(std::size_t length, TYPE init);
+	Vector(std::size_t length, T init);
 	Vector(const Vector &vec);
-	Vector(std::vector<TYPE> &vec);
+	Vector(std::vector<T> &vec);
 
 	~Vector();
 
@@ -49,27 +49,27 @@ public:
 	bool operator==(const Vector &rhs) const;
 	bool operator!=(const Vector &rhs) const;
 
-	TYPE operator*(const Vector &rhs) const;
+	T operator*(const Vector &rhs) const;
 
 	Vector &operator+=(const Vector &rhs);
 	Vector &operator-=(const Vector &rhs);
 	Vector operator+(Vector &rhs);
 	Vector operator-(Vector &rhs);
 	
-	Vector &operator+=(const TYPE rhs);
-	Vector &operator-=(const TYPE rhs);
-	Vector &operator*=(const TYPE rhs);
-	Vector &operator/=(const TYPE rhs);
+	Vector &operator+=(const T rhs);
+	Vector &operator-=(const T rhs);
+	Vector &operator*=(const T rhs);
+	Vector &operator/=(const T rhs);
 
 
-	TYPE get(std::size_t index) const;
-	TYPE set(std::size_t index, TYPE value);
+	T get(std::size_t index) const;
+	T set(std::size_t index, T value);
 
 
-	TYPE sum();
-	TYPE squaredNorm();
+	T sum();
+	T squaredNorm();
 
-	void append(TYPE ele);
+	void append(T ele);
 
 	bool isBasisVector();
 	bool isZeroVector();
@@ -83,10 +83,10 @@ public:
 	
 };
 
-Vector operator+(Vector lhs, const TYPE rhs);
-Vector operator-(Vector lhs, const TYPE rhs);
-Vector operator*(Vector lhs, const TYPE rhs);
-Vector operator/(Vector lhs, const TYPE rhs);
+template<typename T> Vector<T> operator+(Vector<T> lhs, const T rhs);
+template<typename T> Vector<T> operator-(Vector<T> lhs, const T rhs);
+template<typename T> Vector<T> operator*(Vector<T> lhs, const T rhs);
+template<typename T> Vector<T> operator/(Vector<T> lhs, const T rhs);
 
 
 

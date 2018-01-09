@@ -10,15 +10,16 @@
 |********************************** BIG FIVE ********************************|
 \****************************************************************************/
 
-
-Vector::Vector(std::size_t length) : 
-		vec_size{length}, capacity{0}, info{new VectorInfo()} {
+template <typename T>
+Vector<T>::Vector(std::size_t length) : 
+		vec_size{length}, capacity{0}, info{new VectorInfo<T>()} {
 	this->allocateData(length);
 }
 
 
-Vector::Vector(std::size_t length, TYPE init) : vec_size{length}, capacity{0}, 
-		info(new VectorInfo(true, true, true, init == 0.0f ? length : 0.0f, 
+template <typename T>
+Vector<T>::Vector(std::size_t length, T init) : vec_size{length}, capacity{0}, 
+		info(new VectorInfo<T>(true, true, true, init == 0.0f ? length : 0.0f, 
 							init*length, init*init*length)) {
 
 	this->allocateData(length);
@@ -28,9 +29,10 @@ Vector::Vector(std::size_t length, TYPE init) : vec_size{length}, capacity{0},
 }
 
 
-Vector::Vector(std::vector<TYPE> &vec) {
+template <typename T>
+Vector<T>::Vector(std::vector<T> &vec) {
 
-	this->info = new VectorInfo();
+	this->info = new VectorInfo<T>();
 	std::size_t length = vec.size();
 	// std::cout << "Entered Vector(std::vector v) " << vec.size() << std::endl;
 	this->allocateData(length);
@@ -50,9 +52,11 @@ Vector::Vector(std::vector<TYPE> &vec) {
 }
 
 // Copy Constructor
-Vector::Vector(const Vector &other) : 
+
+template <typename T>
+Vector<T>::Vector(const Vector<T> &other) : 
 	vec_size{other.vec_size}, capacity{other.capacity}, 
-	info{new VectorInfo(other.info)} {
+	info{new VectorInfo<T>(other.info)} {
 
 	this->allocateData(this->vec_size);
 
@@ -62,7 +66,8 @@ Vector::Vector(const Vector &other) :
 }
 
 
-void swap(Vector &first, Vector &second) {
+template <typename T>
+void swap(Vector<T> &first, Vector<T> &second) {
 	using std::swap;
 
 	swap(first.vec_size, second.vec_size);
@@ -72,13 +77,16 @@ void swap(Vector &first, Vector &second) {
 
 }
 // Copy Assigment
-Vector &Vector::operator=(Vector other) {
+
+template <typename T>
+Vector &Vector<T>::operator=(Vector other) {
 
 	swap(*this, other);
 	return *this;
 }
 
-Vector::~Vector() {
+template <typename T>
+Vector<T>::~Vector() {
 	delete this->info;
 	delete[] this->vec_data;
 }
@@ -89,20 +97,24 @@ Vector::~Vector() {
 \****************************************************************************/
 
 // Should only be called in constructor, else resize.
-void Vector::allocateData(std::size_t amount) {
+
+template <typename T>
+void Vector<T>::allocateData(std::size_t amount) {
 	// std::cout << "allocData(" << amount <<")" << std::endl;
 
 	// std::cout << nextPowerOfTwo(amount) << std::endl;
 	this->vec_size = amount;
 	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
-	this->vec_data = new TYPE[this->capacity];
+	this->vec_data = new T[this->capacity];
 	// std::cout << "Exiting allocData" << std::endl;
 
 }
 
 // Can only increase size
 // Enable ability to decrease size?
-void Vector::resize(std::size_t amount) {
+
+template <typename T>
+void Vector<T>::resize(std::size_t amount) {
 
 	std::size_t new_capacity = nextPowerOfTwo(this->vec_size + amount);
 	if (this->capacity >= new_capacity) { 
@@ -110,8 +122,8 @@ void Vector::resize(std::size_t amount) {
 	}
 
 	this->capacity = new_capacity;
-	TYPE *temp = new TYPE[this->capacity];
-	std::memcpy(temp, this->vec_data, this->vec_size * sizeof(TYPE));
+	T *temp = new T[this->capacity];
+	std::memcpy(temp, this->vec_data, this->vec_size * sizeof(T));
 	delete[] this->vec_data;
 	this->vec_data = temp;
 }
@@ -125,7 +137,9 @@ void Vector::resize(std::size_t amount) {
 
 // Will need 'approximate' equality operator
 // Possibly cast result to float and then compare
-bool Vector::operator==(const Vector &rhs) const {
+
+template <typename T>
+bool Vector<T>::operator==(const Vector &rhs) const {
 	if (this->vec_size != rhs.vec_size) {
 		// std::cout << "size!=size" << std::endl;
 		return false;
@@ -157,15 +171,17 @@ bool Vector::operator==(const Vector &rhs) const {
 	return true;
 }
 
-bool Vector::operator!=(const Vector &rhs) const {
+template <typename T>
+bool Vector<T>::operator!=(const Vector &rhs) const {
 	return not ((*this) == rhs);
 }
 
 
-TYPE Vector::operator*(const Vector &rhs) const {
+template <typename T>
+T Vector<T>::operator*(const Vector &rhs) const {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 	
-	TYPE sum = 0;
+	T sum = 0;
 	std::size_t i = 0;
 	for (; (i - 4) < this->vec_size; ++i) {
 		sum += this->vec_data[i + 0] * rhs.vec_data[i + 0];
@@ -181,7 +197,8 @@ TYPE Vector::operator*(const Vector &rhs) const {
 }
 
 
-Vector &Vector::operator+=(const Vector &rhs) {
+template <typename T>
+Vector<T> &Vector<T>::operator+=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
@@ -198,7 +215,8 @@ Vector &Vector::operator+=(const Vector &rhs) {
 	return *this;
 }
 
-Vector &Vector::operator-=(const Vector &rhs) {
+template <typename T>
+Vector<T> &Vector<T>::operator-=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
@@ -215,17 +233,23 @@ Vector &Vector::operator-=(const Vector &rhs) {
 	return *this;
 }
 
-Vector Vector::operator+(Vector &rhs) {
+template <typename T>
+Vector<T> Vector<T>::operator+(Vector &rhs) {
 	rhs += *this;
 	return rhs;
 }
-Vector Vector::operator-(Vector &rhs) {
+
+
+template <typename T>
+Vector<T> Vector<T>::operator-(Vector &rhs) {
 	rhs -= *this;
 	return rhs;
 }
 
 // extern SCALAR_ADDITIVE_IDENTITY = 0;
-Vector &Vector::operator+=(const TYPE rhs) {
+
+template <typename T>
+Vector<T> &Vector<T>::operator+=(const T rhs) {
 	if (rhs == 0) return *this;
 
 	std::size_t i = 0;
@@ -249,7 +273,8 @@ Vector &Vector::operator+=(const TYPE rhs) {
 }
 
 
-Vector &Vector::operator-=(const TYPE rhs) {
+template <typename T>
+Vector<T> &Vector<T>::operator-=(const T rhs) {
 	
 	*this += -rhs;
 
@@ -257,7 +282,9 @@ Vector &Vector::operator-=(const TYPE rhs) {
 }
 
 // extern SCALAR_MULTIPLICATIVE_IDENTITY = 1;
-Vector &Vector::operator*=(const TYPE rhs) {
+
+template <typename T>
+Vector<T> &Vector<T>::operator*=(const T rhs) {
 	if (rhs == 1) return *this;
 
 	std::size_t i = 0;
@@ -288,7 +315,9 @@ Vector &Vector::operator*=(const TYPE rhs) {
 	return *this;
 }
 
-Vector &Vector::operator/=(const TYPE rhs) {
+
+template <typename T>
+Vector<T> &Vector<T>::operator/=(const T rhs) {
 	if (rhs == 0) throw DivisionByZeroError();
 	*this *= 1 / rhs;
 
@@ -296,43 +325,50 @@ Vector &Vector::operator/=(const TYPE rhs) {
 }
 
 
-Vector operator+(Vector lhs, const Vector &rhs) {
+template <typename T>
+Vector<T> operator+(Vector lhs, const Vector &rhs) {
 	lhs += rhs;
 	return lhs;
 }
 
 
-Vector operator-(Vector lhs, const Vector &rhs) {
+template <typename T>
+Vector<T> operator-(Vector lhs, const Vector &rhs) {
 	lhs -= rhs;
 	return lhs;
 }
 
 
-Vector operator+(Vector lhs, const TYPE rhs) {
+template <typename T>
+Vector<T> operator+(Vector lhs, const T rhs) {
 	lhs += rhs;
 	return lhs;
 }
 
 
-Vector operator-(Vector lhs, const TYPE rhs) {
+template <typename T>
+Vector<T> operator-(Vector lhs, const T rhs) {
 	lhs -= rhs;
 	return lhs;
 }
 
 
-Vector operator*(Vector lhs, const TYPE rhs) {
+template <typename T>
+Vector<T> operator*(Vector lhs, const T rhs) {
 	lhs *= rhs;
 	return lhs;
 }
 
 
-Vector operator/(Vector lhs, const TYPE rhs) {
+template <typename T>
+Vector<T> operator/(Vector lhs, const T rhs) {
 	lhs /= rhs;
 	return lhs;
 }
 
 // Made private, so no need to update flags.
-TYPE &Vector::operator[](std::size_t index) {
+template <typename T>
+T &Vector<T>::operator[](std::size_t index) {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -341,7 +377,8 @@ TYPE &Vector::operator[](std::size_t index) {
 
 // Returns value => no update to flags_valid => Faster than operator[]
 // Though, there is an (optional) index check
-TYPE Vector::get(std::size_t index) const {
+template <typename T>
+T Vector<T>::get(std::size_t index) const {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -349,7 +386,8 @@ TYPE Vector::get(std::size_t index) const {
 }
 
 // Returns value => no update to flags_valid => Faster than operator[]
-TYPE Vector::set(std::size_t index, TYPE value) {
+template <typename T>
+T Vector<T>::set(std::size_t index, T value) {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -363,7 +401,9 @@ TYPE Vector::set(std::size_t index, TYPE value) {
 
 
 // Do I really need this...
-void Vector::append(TYPE ele) {
+
+template <typename T>
+void Vector<T>::append(T ele) {
 	if (this->vec_size == this->capacity) {
 		this->resize(this->capacity);
 	}
@@ -380,7 +420,7 @@ void Vector::append(TYPE ele) {
 |************************************ MISC **********************************|
 \****************************************************************************/
 
-// void Vector::updateFlags() {
+// void Vector<T>::updateFlags() {
 // 	this->info->countZeros();
 // 	this->info->calculateVecSum();
 // 	this->info->calculateSquaredNorm();
@@ -388,9 +428,10 @@ void Vector::append(TYPE ele) {
 
 // If a given flag is updated, updates info according to what it would
 //  be with ele replacing the element at index
-void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
+template <typename T>
+void Vector<T>::elementUpdateFlags(std::size_t index, T ele) {
 	
-	TYPE old_ele = this->vec_data[index];
+	T old_ele = this->vec_data[index];
 	if (this->info->zero_flag) {
 		if (ele != 0 and old_ele == 0) {
 			--this->info->zero_count;
@@ -410,7 +451,8 @@ void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
 }
 
 
-TYPE Vector::squaredNorm() {
+template <typename T>
+T Vector<T>::squaredNorm() {
 	if (not this->info->norm_flag) {
 		this->info->calculateSquaredNorm(this);
 	}
@@ -418,7 +460,8 @@ TYPE Vector::squaredNorm() {
 }
 
 
-TYPE Vector::sum() {
+template <typename T>
+T Vector<T>::sum() {
 	if (not this->info->sum_flag) {
 		this->info->calculateVecSum(this);
 	}
@@ -426,7 +469,8 @@ TYPE Vector::sum() {
 }
 
 
-bool Vector::isBasisVector() {
+template <typename T>
+bool Vector<T>::isBasisVector() {
 	if (not this->info->zero_flag) {
 		this->info->countZeros(this);
 	}
@@ -434,7 +478,8 @@ bool Vector::isBasisVector() {
 }
 
 
-bool Vector::isZeroVector() {
+template <typename T>
+bool Vector<T>::isZeroVector() {
 	if (not this->info->zero_flag) {
 		this->info->countZeros(this);
 	}
@@ -442,7 +487,8 @@ bool Vector::isZeroVector() {
 }
 
 
-void Vector::print() const {
+template <typename T>
+void Vector<T>::print() const {
 	// std::cout << this->vec_size << " " << this->size() << std::endl;
 	for (std::size_t i = 0; i < (this->vec_size); ++i) {
 		std::cout << this->vec_data[i] << " ";

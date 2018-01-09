@@ -2,10 +2,13 @@
 #define _VECTORINFO_H_
 
 #include "info.h"
+#include "vector.h"
 #include <cstdlib>
 
-class Vector;
+#include <cstdlib>
 
+
+template<typename T>
 struct VectorInfo {
 
 /*********** FLAGS *********/
@@ -14,15 +17,15 @@ struct VectorInfo {
 	bool norm_flag;
 
 	std::size_t zero_count;
-	TYPE vec_sum;
-	TYPE norm_sq;
+	T vec_sum;
+	T norm_sq;
 /***************************/
     VectorInfo(bool zeroflg=false, bool sumflg=false, bool normflg=false, 
-        	std::size_t zero=0, TYPE sum=0.0, TYPE norm=0.0);
+        	std::size_t zero=0, T sum=0.0, T norm=0.0);
 
-	void countZeros(Vector *vec);
-	void calculateVecSum(Vector *vec);
-	void calculateSquaredNorm(Vector *vec);
+	void countZeros(Vector<T> *vec);
+	void calculateVecSum(Vector<T> *vec);
+	void calculateSquaredNorm(Vector<T> *vec);
 
 };
 
