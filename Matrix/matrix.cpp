@@ -7,7 +7,6 @@
 
 
 
-
 /****************************************************************************\
 |***********************************BIG FIVE*********************************|
 \****************************************************************************/
@@ -91,7 +90,6 @@ Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_co
 
 
 void swap(Matrix &first, Matrix &second) {
-	// enable ADL (not necessary in our case, but good practice)
 	using std::swap;
 
 	swap(first.num_rows, second.num_rows);
@@ -309,8 +307,22 @@ TYPE *Matrix::operator[](std::size_t index) {
 
 
 /****************************************************************************\
-|****************************************************************************|
+|*********************************** MISC ***********************************|
 \****************************************************************************/
+
+// Need to define "unpermute as well".
+// Though if eventually multithreading gets involved, may need to 
+// change function to return a new permuted matrix...
+// fml
+void Matrix::permute(std::vector<TYPE> permutation) {
+	if (permutation.size() != this->getRows()) throw InvalidDimensions();
+
+	std::vector<TYPE *> swp(this->getRows());
+	for (std::size_t i = 0; i < this->getRows(); ++i) swp[i] = this->data[i];
+	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swp[permutation[i]];
+
+}
+
 
 
 // Update all flags and update validState to true
@@ -415,6 +427,7 @@ void Matrix::setIsIdentity() {
 
 
 void Matrix::print() const {
+	std::cout.precision(2);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
 			std::cout << this->data[row][col] << " ";

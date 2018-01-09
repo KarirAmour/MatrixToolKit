@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
+#include <cmath>
 
 
 template< typename Container, typename Type = typename Container::value_type >
@@ -95,6 +95,23 @@ void toBase(unsigned int base, unsigned int value) {
 
 }
 
+template<typename T>
+T naiveModularExponentiation(T base, T power, T modulo) {
+	T exponent = pow(base, power);
+	return exponent % modulo;
+}
+
+
+
+// (Mostly efficiently) Solves x = b^e % modulo
+template<typename T>
+T ModularExponentiation(T base, T power, T modulo) {
+	T curr = 0;
+	for (T exp = 0; exp < power; ++exp) {
+		curr = (curr * base) % modulo;
+	}
+	return curr;
+}
 
 
 

@@ -1,288 +1,484 @@
 #include "vector.h"
 
-#include <cstring>
-#include <iostream>
+// #include <cstring>
+// #include <memory>
+// #include <iostream>
 
 
 
-
-/****************************************************************************\
-|********************************** BIG FIVE ********************************|
-\****************************************************************************/
-
-
-Vector::Vector(std::size_t length) : vec_size{length}, capacity{0},
-flags_valid{false}, is_zero{false}, is_basis{false}, sum_flag{false}, 
-norm_sq_flag{false}, vec_sum{0}, norm_sq{0}, zero_count{0} {
-
-	std::cout << "Vector size " << sizeof(*this) << std::endl;
-	this->allocateData(length);
-}
-
-Vector::Vector(std::size_t length, TYPE init) : vec_size{length}, capacity{0}, 
-flags_valid{true}, is_zero{init == 0}, is_basis{length == 1}, sum_flag{true}, 
-norm_sq_flag{true}, vec_sum{init * length}, norm_sq{init * init * length}, zero_count{init == 0 ? length : 0} {
-
-	this->allocateData(length);
-	for (std::size_t i = 0; i < length; ++i) {
-		this->vec_data[i] = init;
-	}
-}
+// template <typename T>
+// Vector<T>::Vector(std::size_t length) : 
+// 		vec_size{length}, capacity{0}, info{new VectorInfo<T>()} {
+// 	this->allocateData(length);
+// }
 
 
-Vector::Vector(std::vector<TYPE> &vec) : flags_valid{false}, is_zero{false}, is_basis{false} {
+// template <typename T>
+// Vector<T>::Vector(std::size_t length, T init) : vec_size{length}, capacity{0}, 
+// 		info(new VectorInfo<T>(true, true, true, init == 0.0f ? length : 0.0f, 
+// 							init*length, init*init*length)) {
 
-	std::size_t length = vec.size();
-	this->allocateData(length);
-
-	for (std::size_t i = 0; i < length; ++i) {
-		this->vec_data[i] = vec[i];
-		this->vec_sum += this->vec_data[i];
-		this->norm_sq += this->vec_data[i] * this->vec_data[i];
-	}
-	this->sum_flag = true;
-	this->norm_sq_flag = true;
-}
-
-// Copy Constructor
-
-Vector::Vector(const Vector &other) : vec_size{other.vec_size}, capacity{other.capacity}, 
-flags_valid{other.flags_valid}, is_zero{other.is_zero}, is_basis{other.is_basis}, 
-sum_flag{other.sum_flag}, norm_sq_flag{other.norm_sq_flag}, 
-vec_sum{other.vec_sum}, norm_sq{other.norm_sq}, zero_count{zero_count} {
-
-	this->allocateData(this->vec_size);
-
-	for (std::size_t i = 0; i < this->vec_size; ++i) {
-		this->vec_data[i] = other.vec_data[i];
-	}
-}
+// 	this->allocateData(length);
+// 	for (std::size_t i = 0; i < length; ++i) {
+// 		this->vec_data[i] = init;
+// 	}
+// }
 
 
-// // Move Constructor
-// Vector::Vector(Vector &&other) {
+// template <typename T>
+// Vector<T>::Vector(std::vector<T> &vec) {
+
+// 	this->info = new VectorInfo<T>();
+// 	std::size_t length = vec.size();
+// 	// std::cout << "Entered Vector(std::vector v) " << vec.size() << std::endl;
+// 	this->allocateData(length);
+
+// 	for (std::size_t i = 0; i < length; ++i) {
+// 		this->vec_data[i] = vec[i];
+// 		this->info->vec_sum += this->vec_data[i];
+// 		this->info->norm_sq += this->vec_data[i] * this->vec_data[i];
+// 		if (this->vec_data[i] == 0) {
+// 			++this->info->zero_count;
+// 		}
+// 	}
+// 	this->info->zero_flag = true;
+// 	this->info->sum_flag = true;
+// 	this->info->norm_flag = true;
 
 // }
 
+// // Copy Constructor
+
+// template <typename T>
+// Vector<T>::Vector(const Vector<T> &other) : 
+// 	vec_size{other.vec_size}, capacity{other.capacity}, 
+// 	info{new VectorInfo<T>(other.info)} {
+
+// 	this->allocateData(this->vec_size);
+
+// 	for (std::size_t i = 0; i < this->vec_size; ++i) {
+// 		this->vec_data[i] = other.vec_data[i];
+// 	}
+// }
+
+
+// template <typename T>
+// void swap(Vector<T> &first, Vector<T> &second) {
+// 	using std::swap;
+
+// 	swap(first.vec_size, second.vec_size);
+// 	swap(first.capacity, second.capacity);
+// 	swap(first.vec_data, second.vec_data);
+// 	swap(first.info, second.info);
+
+// }
 // // Copy Assigment
-// Vector &Vector::operator=(Vector other) {
+
+// template <typename T>
+// Vector &Vector<T>::operator=(Vector other) {
+
+// 	swap(*this, other);
+// 	return *this;
+// }
+
+// template <typename T>
+// Vector<T>::~Vector() {
+// 	delete this->info;
+// 	delete[] this->vec_data;
+// }
+
+
+// // Should only be called in constructor, else resize.
+
+// template <typename T>
+// void Vector<T>::allocateData(std::size_t amount) {
+// 	// std::cout << "allocData(" << amount <<")" << std::endl;
+
+// 	// std::cout << nextPowerOfTwo(amount) << std::endl;
+// 	this->vec_size = amount;
+// 	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
+// 	this->vec_data = new T[this->capacity];
+// 	// std::cout << "Exiting allocData" << std::endl;
 
 // }
 
-Vector::~Vector() {
-	delete[] this->vec_data;
-}
+// // Can only increase size
+// // Enable ability to decrease size?
 
+// template <typename T>
+// void Vector<T>::resize(std::size_t amount) {
 
-/****************************************************************************\
-|****************************** DATA ALLOCATION *****************************|
-\****************************************************************************/
+// 	std::size_t new_capacity = nextPowerOfTwo(this->vec_size + amount);
+// 	if (this->capacity >= new_capacity) { 
+// 		return;
+// 	}
 
-// Should only be called in constructor, else resize.
-void Vector::allocateData(std::size_t amount) {
-
-	this->vec_size = amount; // Nearest Divisor of INIT_SIZE. Can try nearest power of 2
-	this->capacity = amount + INIT_SIZE - (amount % INIT_SIZE);
-	this->vec_data = new TYPE[this->capacity];
-
-
-}
-
-// Can only increase size
-void Vector::resize(std::size_t amount) {
-	std::cout << "resize" << std::endl;
-	TYPE *temp = new TYPE[this->capacity + amount + INIT_SIZE - (amount % INIT_SIZE)];
-	std::memcpy(temp, vec_data, this->vec_size * sizeof(TYPE));
-	this->capacity += amount;
-	delete[] vec_data;
-	vec_data = temp;
-}
+// 	this->capacity = new_capacity;
+// 	T *temp = new T[this->capacity];
+// 	std::memcpy(temp, this->vec_data, this->vec_size * sizeof(T));
+// 	delete[] this->vec_data;
+// 	this->vec_data = temp;
+// }
 
 
 
-/****************************************************************************\
-|******************************** OPERATIONS ********************************|
-\****************************************************************************/
+// // Will need 'approximate' equality operator
+// // Possibly cast result to float and then compare
 
-// Made private, so no need to update flags.
-TYPE &Vector::operator[](std::size_t index) {
-	#ifdef CHECK_BOUNDS
-	if (index >= this->vec_size) throw OutOfBoundsException();
-	#endif
-	return this->vec_data[index];
-}
+// template <typename T>
+// bool Vector<T>::operator==(const Vector &rhs) const {
+// 	if (this->vec_size != rhs.vec_size) {
+// 		// std::cout << "size!=size" << std::endl;
+// 		return false;
+// 	}
 
-// Returns value => no update to flags_valid => Faster than operator[]
-TYPE Vector::get(std::size_t index) const {
-	#ifdef CHECK_BOUNDS
-	if (index >= this->vec_size) throw OutOfBoundsException();
-	#endif
-	return this->vec_data[index];
-}
+// 	if ((this->info->zero_flag and rhs.info->zero_flag) and 
+// 		(this->info->zero_count != rhs.info->zero_count)) {
+// 		// std::cout << "cnt!=cnt" << std::endl;
+// 		// std::cout <<  this->info->zero_count << " != " << rhs.info->zero_count << std::endl;
+// 		return false;
+// 	}
+// 	if ((this->info->sum_flag and rhs.info->sum_flag) and 
+// 		(this->info->vec_sum != rhs.info->vec_sum)) {
+// 		// std::cout << "sum!=sum" << std::endl;
+// 		// std::cout <<  this->info->vec_sum << " != " << rhs.info->vec_sum << std::endl;
+// 		return false;
+// 	}
+// 	if ((this->info->norm_flag and rhs.info->norm_flag) and 
+// 		(this->info->norm_sq != rhs.info->norm_sq)) {
+// 		// std::cout << "norm!=norm" << std::endl;
+// 		return false;
+// 	}
+// 	for (std::size_t i = 0; i < this->vec_size; ++i) {
+// 		if (this->vec_data[i] != rhs.vec_data[i]) { 
+// 			// std::cout << i << " != i" << std::endl;
+// 			return false;
+// 		}
+// 	}
+// 	return true;
+// }
 
-// Returns value => no update to flags_valid => Faster than operator[]
-TYPE Vector::set(std::size_t index, TYPE value) {
-	#ifdef CHECK_BOUNDS
-	if (index >= this->vec_size) throw OutOfBoundsException();
-	#endif
-
-	elementUpdateFlags(index, value);
-
-	return this->vec_data[index] = value; // Allows chaining
-
-}
-
-bool Vector::operator==(const Vector &rhs) const {
-
-	if (this->flags_valid and rhs.flags_valid) {
-		if (this->vec_size != rhs.vec_size) return false;
-		if (this->is_zero != rhs.is_zero) return false;
-		if (this->is_basis != rhs.is_basis) return false;
-	}
-
-	for (std::size_t i = 0; i < this->vec_size; ++i) {
-		if (this->vec_data[i] != rhs.vec_data[i]) return false;
-	}
-	return true;
-}
-
-bool Vector::operator!=(const Vector &rhs) const {
-	return (*this) != rhs;
-}
+// template <typename T>
+// bool Vector<T>::operator!=(const Vector &rhs) const {
+// 	return not ((*this) == rhs);
+// }
 
 
-// Do I really need this...
-void Vector::append(TYPE ele) {
-	if (this->vec_size == this->capacity) {
-		this->resize(this->capacity);
-	}
-	this->vec_size += 1; // ISSUES HERE
-	elementUpdateFlags(this->vec_size, ele); // AND HERE
-	this->vec_data[this->vec_size] = ele; // AND HERE
+// template <typename T>
+// T Vector<T>::operator*(const Vector &rhs) const {
+// 	if (this->size() != rhs.size()) throw InvalidDimensions();
+	
+// 	T sum = 0;
+// 	std::size_t i = 0;
+// 	for (; (i - 4) < this->vec_size; ++i) {
+// 		sum += this->vec_data[i + 0] * rhs.vec_data[i + 0];
+// 		sum += this->vec_data[i + 1] * rhs.vec_data[i + 1];
+// 		sum += this->vec_data[i + 2] * rhs.vec_data[i + 2];
+// 		sum += this->vec_data[i + 3] * rhs.vec_data[i + 3];
+// 	}
+// 	for (; i < this->vec_size; ++i) {
+// 		sum += this->vec_data[i] * rhs.vec_data[i];
+// 	}
 
-}
-
-
-
-/****************************************************************************\
-|************************************ MISC **********************************|
-\****************************************************************************/
-
-void Vector::updateFlags() {
-	this->calculateIsZero(); // Order in which these are called matters.
-	this->calculateIsBasis();
-	this->calculateVecSum();
-	this->calculateSquaredNorm();
-	this->flags_valid = true;
-}
-
-// ISSUES XD
-void Vector::elementUpdateFlags(std::size_t index, TYPE ele) {
-	if (this->flags_valid) {
-		TYPE old_ele = this->vec_data[index];
-		if (ele != 0) {
-			this->vec_sum += ele - old_ele;
-			this->norm_sq += (ele * ele) - (old_ele * old_ele);
-			this->sum_flag = true;
-			this->norm_sq_flag = true;
-			this->is_zero = false;
-		} else {
-			++this->zero_count;
-		}
-		if (this->is_basis) {
-			this->is_basis = (ele == 0) and (old_ele == 0);
-		} else {
-			this->calculateIsBasis();
-		}
-	} else {
-		this->updateFlags();
-	}
-}
+// 	return sum;
+// }
 
 
+// template <typename T>
+// Vector<T> &Vector<T>::operator+=(const Vector &rhs) {
+// 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
-TYPE Vector::squaredNorm() {
-	if (not this->flags_valid) {
-		this->updateFlags();
-	}
-	return this->norm_sq; 
-}
-// Can optimize by combining this with Sum/Zero/Basis.
-// Will cross that bridge when in optimize phase.
-void Vector::Vector::calculateSquaredNorm() {
-	this->norm_sq = 0;
-	for (std::size_t i = 0; i < this->vec_size; ++i) {
-		this->norm_sq += this->vec_data[i] * this->vec_data[i];
-	}
-}
+// 	std::size_t i = 0;
+// 	for (; (i - 4) < this->vec_size; ++i) {
+// 		this->vec_data[i + 0] += rhs.vec_data[i + 0];
+// 		this->vec_data[i + 1] += rhs.vec_data[i + 1];
+// 		this->vec_data[i + 2] += rhs.vec_data[i + 2];
+// 		this->vec_data[i + 3] += rhs.vec_data[i + 3];
+// 	}
+// 	for (; i < this->vec_size; ++i) {
+// 		this->vec_data[i] += rhs.vec_data[i];
+// 	}
 
+// 	return *this;
+// }
 
-TYPE Vector::Sum() {
-	if (not this->flags_valid) {
-		this->updateFlags();
-	}
-	return this->vec_sum; 
-}
+// template <typename T>
+// Vector<T> &Vector<T>::operator-=(const Vector &rhs) {
+// 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
-void Vector::calculateVecSum() {
-	this->vec_sum = 0;
-	for (std::size_t i = 0; i < this->vec_size; ++i) this->vec_sum += this->vec_data[i];
+// 	std::size_t i = 0;
+// 	for (; (i - 4) < this->vec_size; ++i) {
+// 		this->vec_data[i + 0] -= rhs.vec_data[i + 0];
+// 		this->vec_data[i + 1] -= rhs.vec_data[i + 1];
+// 		this->vec_data[i + 2] -= rhs.vec_data[i + 2];
+// 		this->vec_data[i + 3] -= rhs.vec_data[i + 3];
+// 	}
+// 	for (; i < this->vec_size; ++i) { 
+// 		this->vec_data[i] -= rhs.vec_data[i];
+// 	}
 
-}
+// 	return *this;
+// }
 
-bool Vector::isBasisVector() {
-	if (not this->flags_valid) {
-		this->updateFlags();
-	}
-	return this->is_basis; 
-}
-
-bool Vector::isZeroVector() {
-	if (not this->flags_valid) {
-		this->updateFlags();
-	}
-	return this->is_zero; 
-}
+// template <typename T>
+// Vector<T> Vector<T>::operator+(Vector &rhs) {
+// 	rhs += *this;
+// 	return rhs;
+// }
 
 
-void Vector::calculateIsBasis() {
-	this->is_basis = false;
-	bool foundOne = false;
-	for (std::size_t i = 0; i < this->vec_size; ++i) {
-		if (this->vec_data[i] == 1) {
-			if (foundOne) return;
-			else foundOne = true;
-		} else if (this->vec_data[i] != 0) return;
-	}
-	this->is_basis = foundOne;
-}
+// template <typename T>
+// Vector<T> Vector<T>::operator-(Vector &rhs) {
+// 	rhs -= *this;
+// 	return rhs;
+// }
+
+// // extern SCALAR_ADDITIVE_IDENTITY = 0;
+
+// template <typename T>
+// Vector<T> &Vector<T>::operator+=(const T rhs) {
+// 	if (rhs == 0) return *this;
+
+// 	std::size_t i = 0;
+// 	for (; (i - 4) < this->vec_size; ++i) {
+// 		this->vec_data[i + 0] += rhs;
+// 		this->vec_data[i + 1] += rhs;
+// 		this->vec_data[i + 2] += rhs;
+// 		this->vec_data[i + 3] += rhs;
+// 	}
+// 	for (; i < this->vec_size; ++i) { 
+// 		this->vec_data[i] += rhs;
+// 	}
+
+// 	if (this->info->sum_flag) {
+// 		this->info->vec_sum += rhs * this->vec_size;
+// 	}
+// 	this->info->zero_flag = false;
+// 	this->info->norm_flag = false;
+
+// 	return *this;
+// }
 
 
-void Vector::calculateIsZero() {
+// template <typename T>
+// Vector<T> &Vector<T>::operator-=(const T rhs) {
+	
+// 	*this += -rhs;
 
-	this->is_zero = false;
-	std::size_t i = 0;
-	for (i = 0; (i - 4) < this->vec_size; ++i) {
-		if (this->vec_data[i + 0]) return;
-		if (this->vec_data[i + 1]) return;
-		if (this->vec_data[i + 2]) return;
-		if (this->vec_data[i + 3]) return;
-	}
+// 	return *this;
+// }
 
-	for (; i < this->vec_size; ++i) if (this->vec_data[i]) return;
+// // extern SCALAR_MULTIPLICATIVE_IDENTITY = 1;
 
-	this->is_zero = true;
-}
+// template <typename T>
+// Vector<T> &Vector<T>::operator*=(const T rhs) {
+// 	if (rhs == 1) return *this;
 
-void Vector::print() const {
-	for (std::size_t i = 0; i < (this->vec_size); ++i) {
-		std::cout << this->vec_data[i] << " ";
-	}
-	std::cout << std::endl;
-}
+// 	std::size_t i = 0;
+// 	for (; (i - 4) < this->vec_size; ++i) {
+// 		this->vec_data[i + 0] *= rhs;
+// 		this->vec_data[i + 1] *= rhs;
+// 		this->vec_data[i + 2] *= rhs;
+// 		this->vec_data[i + 3] *= rhs;
+// 	}
+// 	for (; i < this->vec_size; ++i) { this->vec_data[i] *= rhs; }
+
+// 	if (rhs == 0) {	
+// 		this->info->zero_flag = true;
+// 		this->info->zero_count = this->vec_size;
+// 		this->info->sum_flag = true;
+// 		this->info->vec_sum = 0;
+// 		this->info->norm_flag = true;
+// 		this->info->norm_sq = 0;
+// 	} else {
+// 		if (this->info->sum_flag) { // [k*a,k*b,k*c] = k * [a,b,c]
+// 			this->info->vec_sum *= rhs;
+// 		}
+// 		if (this->info->norm_flag) { // sqr([k*a,k*b,k*c]) = sqr(k)*sqr([a,b,c])
+// 			this->info->norm_sq *= rhs * rhs; 
+// 		} 
+// 	}
+
+// 	return *this;
+// }
 
 
-// static void Test() {
+// template <typename T>
+// Vector<T> &Vector<T>::operator/=(const T rhs) {
+// 	if (rhs == 0) throw DivisionByZeroError();
+// 	*this *= 1 / rhs;
 
+// 	return *this;
+// }
+
+
+// template <typename T>
+// Vector<T> operator+(Vector lhs, const Vector &rhs) {
+// 	lhs += rhs;
+// 	return lhs;
+// }
+
+
+// template <typename T>
+// Vector<T> operator-(Vector lhs, const Vector &rhs) {
+// 	lhs -= rhs;
+// 	return lhs;
+// }
+
+
+// template <typename T>
+// Vector<T> operator+(Vector lhs, const T rhs) {
+// 	lhs += rhs;
+// 	return lhs;
+// }
+
+
+// template <typename T>
+// Vector<T> operator-(Vector lhs, const T rhs) {
+// 	lhs -= rhs;
+// 	return lhs;
+// }
+
+
+// template <typename T>
+// Vector<T> operator*(Vector lhs, const T rhs) {
+// 	lhs *= rhs;
+// 	return lhs;
+// }
+
+
+// template <typename T>
+// Vector<T> operator/(Vector lhs, const T rhs) {
+// 	lhs /= rhs;
+// 	return lhs;
+// }
+
+// // Made private, so no need to update flags.
+// template <typename T>
+// T &Vector<T>::operator[](std::size_t index) {
+// 	#ifdef CHECK_BOUNDS
+// 	if (index >= this->vec_size) throw OutOfBoundsException();
+// 	#endif
+// 	return this->vec_data[index];
+// }
+
+// // Returns value => no update to flags_valid => Faster than operator[]
+// // Though, there is an (optional) index check
+// template <typename T>
+// T Vector<T>::get(std::size_t index) const {
+// 	#ifdef CHECK_BOUNDS
+// 	if (index >= this->vec_size) throw OutOfBoundsException();
+// 	#endif
+// 	return this->vec_data[index];
+// }
+
+// // Returns value => no update to flags_valid => Faster than operator[]
+// template <typename T>
+// T Vector<T>::set(std::size_t index, T value) {
+// 	#ifdef CHECK_BOUNDS
+// 	if (index >= this->vec_size) throw OutOfBoundsException();
+// 	#endif
+
+// 	elementUpdateFlags(index, value);
+
+// 	this->vec_data[index] = value; // Allows chaining
+// 	return this->vec_data[index];
 
 // }
+
+
+// // Do I really need this...
+
+// template <typename T>
+// void Vector<T>::append(T ele) {
+// 	if (this->vec_size == this->capacity) {
+// 		this->resize(this->capacity);
+// 	}
+// 	elementUpdateFlags(this->vec_size, ele); // AND HERE
+// 	this->vec_data[this->vec_size] = ele; // AND HERE
+// 	this->vec_size += 1; // ISSUES HERE
+
+// }
+
+
+
+
+// // void Vector<T>::updateFlags() {
+// // 	this->info->countZeros();
+// // 	this->info->calculateVecSum();
+// // 	this->info->calculateSquaredNorm();
+// // }
+
+// // If a given flag is updated, updates info according to what it would
+// //  be with ele replacing the element at index
+// template <typename T>
+// void Vector<T>::elementUpdateFlags(std::size_t index, T ele) {
+	
+// 	T old_ele = this->vec_data[index];
+// 	if (this->info->zero_flag) {
+// 		if (ele != 0 and old_ele == 0) {
+// 			--this->info->zero_count;
+// 		} else if (ele == 0 and old_ele != 0) { 
+// 			++this->info->zero_count;	
+// 		}
+// 		if (this->info->zero_count > this->vec_size) throw CalculationError();
+// 	}
+// 	if (this->info->sum_flag) {
+// 		this->info->vec_sum += ele - old_ele;
+// 		this->info->sum_flag = true;
+// 	}
+// 	if (this->info->norm_flag) {
+// 		this->info->norm_sq += (ele * ele) - (old_ele * old_ele);
+// 		this->info->norm_flag = true;
+// 	}
+// }
+
+
+// template <typename T>
+// T Vector<T>::squaredNorm() {
+// 	if (not this->info->norm_flag) {
+// 		this->info->calculateSquaredNorm(this);
+// 	}
+// 	return this->info->norm_sq; 
+// }
+
+
+// template <typename T>
+// T Vector<T>::sum() {
+// 	if (not this->info->sum_flag) {
+// 		this->info->calculateVecSum(this);
+// 	}
+// 	return this->info->vec_sum; 
+// }
+
+
+// template <typename T>
+// bool Vector<T>::isBasisVector() {
+// 	if (not this->info->zero_flag) {
+// 		this->info->countZeros(this);
+// 	}
+// 	return (this->vec_size - this->info->zero_count) == 1; 
+// }
+
+
+// template <typename T>
+// bool Vector<T>::isZeroVector() {
+// 	if (not this->info->zero_flag) {
+// 		this->info->countZeros(this);
+// 	}
+// 	return this->info->zero_count == this->vec_size; 
+// }
+
+
+// template <typename T>
+// void Vector<T>::print() const {
+// 	// std::cout << this->vec_size << " " << this->size() << std::endl;
+// 	for (std::size_t i = 0; i < (this->vec_size); ++i) {
+// 		std::cout << this->vec_data[i] << " ";
+// 	}
+// 	std::cout << std::endl;
+// }
+
+
+
+
