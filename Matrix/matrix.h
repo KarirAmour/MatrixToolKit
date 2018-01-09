@@ -24,7 +24,7 @@ class Matrix {
 	std::size_t num_rows;
 	std::size_t num_cols;
 
-	TYPE **data;
+	Vector *data;
 
 	void determineInfo();
 

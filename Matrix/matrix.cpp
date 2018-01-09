@@ -1,8 +1,9 @@
 #include "matrix.h"
 #include "info.h"
+#include "vector.h"
 #include <iostream>
 #include <ctime>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstring>
 
 
