@@ -2,14 +2,16 @@
 #define _MATRIX_H_
 
 #include "info.h"
-
+#include "../Vector/vector.h"
 #include <cstddef>
 #include <vector>
 
 // template <typename> class std::vector<double>;
-
+// typedef Vector<double> XVector;
+// typedef Vector<double>* PVector;
 
 struct MatrixInfo {
+
 	bool validState; // set false when matrix is changed.
 	bool isUpper;
 	bool isLower;
@@ -24,7 +26,7 @@ class Matrix {
 	std::size_t num_rows;
 	std::size_t num_cols;
 
-	Vector *data;
+	Vector<double> **data;
 
 	void determineInfo();
 
@@ -74,8 +76,8 @@ public:
 	Matrix operator+(TYPE scalar) const;
 	Matrix operator-(TYPE scalar) const;
 
-	TYPE *operator[](std::size_t index);
-	void permute(std::vector<TYPE> permutation);
+	Vector<double> &operator[](std::size_t index);
+	void permute(Vector<int> permutation);
 
 	bool isUpperTriangular();
 	bool isLowerTriangular();

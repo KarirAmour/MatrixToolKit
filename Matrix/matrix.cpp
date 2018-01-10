@@ -1,6 +1,5 @@
 #include "matrix.h"
 #include "info.h"
-#include "vector.h"
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
@@ -24,7 +23,7 @@ Matrix::Matrix(const char *file_name) : num_rows{0}, num_cols{0} {
 
 
 void Matrix::determineInfo() {
-	this->info = new MatrixInfo();
+	this->info = new MatrixInfo(); // Thats it?
 }
 
 Matrix::Matrix(std::size_t nrows, std::size_t ncols) : 
@@ -42,9 +41,9 @@ void Matrix::allocateData() {
 		return;
 	}
 
-	this->data = new TYPE *[this->num_rows];
+	this->data = new Vector<double> *[this->num_rows];
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		this->data[row] = new TYPE[this->num_cols];
+		this->data[row] = new Vector<double>(this->num_cols);
 	}
 }
 
@@ -63,7 +62,7 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 
 	this->allocateData();
 	for (std::size_t row = 0; row < num_rows; ++row) {
-		std::copy(other.data[row], other.data[row] + num_rows, this->data[row]);
+		*(this->data[row]) = *(other.data[row]);
 	}
 
 	this->info = new MatrixInfo();
@@ -301,9 +300,8 @@ Matrix Matrix::operator-(TYPE scalar) const {
 	return Matrix(*this + (-scalar));
 }
 
-
-TYPE *Matrix::operator[](std::size_t index) {
-	return this->data[index];
+Vector<double> &Matrix::operator[](std::size_t index) {
+	return *(this->data[index]);
 }
 
 
@@ -315,12 +313,12 @@ TYPE *Matrix::operator[](std::size_t index) {
 // Though if eventually multithreading gets involved, may need to 
 // change function to return a new permuted matrix...
 // fml
-void Matrix::permute(std::vector<TYPE> permutation) {
+void Matrix::permute(Vector<int> permutation) {
 	if (permutation.size() != this->getRows()) throw InvalidDimensions();
 
-	std::vector<TYPE *> swp(this->getRows());
-	for (std::size_t i = 0; i < this->getRows(); ++i) swp[i] = this->data[i];
-	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swp[permutation[i]];
+	Vector<Vector<double> *> swp(this->getRows());
+	for (std::size_t i = 0; i < this->getRows(); ++i) swp.set(i, this->data[i]);
+	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swp.get(permutation.get(i));
 
 }
 
@@ -354,7 +352,7 @@ void Matrix::setIsUpper() {
 	std::size_t col = 0;
 	for (std::size_t row = 0; row > col; ++row) {
 		for (col = 0; col <= row; ++col) {
-			if (this->data[row][col] != 0) return;
+			if (this->data->get(row)->get(col) != 0) return;
 		}
 	}
 	this->info->isUpper = true;
@@ -431,9 +429,9 @@ void Matrix::print() const {
 	std::cout.precision(2);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			std::cout << this->data[row][col] << " ";
+			this->data[row]->print();
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
 
 }
