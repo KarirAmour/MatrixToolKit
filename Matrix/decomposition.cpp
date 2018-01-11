@@ -1,8 +1,7 @@
 #include "decomposition.h"
 #include "info.h"
-#include <vector>
-
-
+// #include <vector>
+#include "../Vector/vector.h"
 
 // First LU Decompose
 // A = LU
@@ -19,25 +18,25 @@ void printVector(Vector &v) {
 }
 
 
-Vector Pivot(Matrix &a) {
-	if (a.getRows() != a.getCols()) throw InvalidDimensions(); // Need SQ matrix
+Vector<int> Pivot(Matrix &m) {
+	if (m.getRows() != m.getCols()) throw InvalidDimensions(); // Need SQ matrix
 
 	// permutation = {col1, col2, col3, ... coln} where the value of coli corresponds
 	// to the column number that is set to 1 in the ith row.
-	Vector permutation(a.getRows());
-	for (std::size_t i = 0; i < permutation.size(); ++i) permutation[i] = i;
+	Vector<int> permutation = Vector<int>(m.getRows());
+	for (int i = 0; i < permutation.size(); ++i) permutation[i] = i;
 
 	// Set the ith diagonal value to the largest element in column i.
 	// Avoid infinite swapping by starting at row = col at each iteration.
-	for (std::size_t col = 0; col < a.getCols(); ++col) {
+	for (std::size_t col = 0; col < m.getCols(); ++col) {
 		int max_row = col;
-		for (std::size_t row = col; row < a.getRows(); ++row) {
-			if (fabs(a[row][col]) > fabs(a[max_row][col])) {
+		for (std::size_t row = col; row < m.getRows(); ++row) {
+			if (fabs(m[row][col]) > fabs(m[max_row][col])) {
 				max_row = row;
 			}
 		}
 		if (max_row != col) { // Swap rows if it is not currently largest
-			float swp = permutation[col];
+			int swp = permutation[col];
 			permutation[col] = permutation[max_row];
 			permutation[max_row] = swp;
 		}
@@ -89,7 +88,7 @@ void LUFactorize(Matrix &A, Matrix &L, Matrix &U) {
 	// std::cout << "L SIZE: " << L.getRows() << ", " << L.getRows() << std::endl;
 	// std::cout << "U SIZE: " << U.getRows() << ", " << U.getRows() << std::endl;
 
-	Vector permutation = Pivot(A); // Pivot based on largest elements
+	Vector<int> permutation = Pivot(A); // Pivot based on largest elements
 	A.permute(permutation);	// Permute A based on perm
 	std::cout << "Permuted A." << std::endl;
 	A.print();

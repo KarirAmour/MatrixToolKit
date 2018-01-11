@@ -352,7 +352,7 @@ void Matrix::setIsUpper() {
 	std::size_t col = 0;
 	for (std::size_t row = 0; row > col; ++row) {
 		for (col = 0; col <= row; ++col) {
-			if (this->data->get(row)->get(col) != 0) return;
+			if (this->data[row][col] != 0) return;
 		}
 	}
 	this->info->isUpper = true;
