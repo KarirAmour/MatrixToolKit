@@ -5,10 +5,12 @@
 #include "../Vector/vector.h"
 #include <cstddef>
 #include <vector>
-
+#include <memory>
 // template <typename> class std::vector<double>;
 // typedef Vector<double> XVector;
 // typedef Vector<double>* PVector;
+typedef Vector<double>* VectorPtr;
+typedef Vector<double> VectorX;
 
 struct MatrixInfo {
 
@@ -26,7 +28,7 @@ class Matrix {
 	std::size_t num_rows;
 	std::size_t num_cols;
 
-	Vector<double> **data;
+	std::vector< std::shared_ptr<VectorX> > data;
 
 	void determineInfo();
 
@@ -46,7 +48,7 @@ public:
 	// static PermutationMatrix(const std::vector<TYPE> &vec);
 	// static InverseMatrix(const Matrix &m);
 
-	MatrixInfo *info;
+	std::shared_ptr<MatrixInfo> info;
 	Matrix(const char *file_name);
 	Matrix(std::size_t nrows = 0, std::size_t ncols = 0);
 	Matrix(const Matrix &other); // Copy Constructor

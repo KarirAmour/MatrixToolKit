@@ -23,36 +23,35 @@ Matrix::Matrix(const char *file_name) : num_rows{0}, num_cols{0} {
 
 
 void Matrix::determineInfo() {
-	this->info = new MatrixInfo(); // Thats it?
+	this->info = std::make_unique<MatrixInfo>(); // Thats it?
 }
 
 Matrix::Matrix(std::size_t nrows, std::size_t ncols) : 
 	num_rows{nrows}, num_cols{ncols}, data{nullptr} {
 
 		this->allocateData();
-		this->info = new MatrixInfo();
+		this->determineInfo();
 
 }
 
 void Matrix::allocateData() {
 
 	if (this->num_cols == 0 or this->num_rows == 0) {
-		this->data = nullptr;
 		return;
 	}
 
-	this->data = new Vector<double> *[this->num_rows];
+	this->data.reserve(this->num_rows);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		this->data[row] = new Vector<double>(this->num_cols);
+		this->data.emplace_back(std::make_shared<VectorX>(this->num_cols));
 	}
 }
 
 // Destructor
 Matrix::~Matrix() {
-	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		delete[] this->data[row];
-	}
-	delete[] this->data;
+	// for (std::size_t row = 0; row < this->num_rows; ++row) {
+	// 	delete[] this->data[row];
+	// }
+	// delete[] this->data;
 	std::cout << "Destructor" << std::endl;
 
 }
@@ -65,7 +64,7 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 		*(this->data[row]) = *(other.data[row]);
 	}
 
-	this->info = new MatrixInfo();
+	// this->info = new MatrixInfo();
 	*(this->info) = *(other.info);
 
 	std::cout << "Copy Constructor" << std::endl;
@@ -73,42 +72,43 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 }
 
 
-// Move Constructor
-Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
+// // Move Constructor
+// No need for This because no allocated data...
+// Matrix::Matrix(Matrix &&other) : num_rows{other.num_rows}, num_cols{other.num_cols} {
 
-	other.num_cols = other.num_rows = 0;
+// 	other.num_cols = other.num_rows = 0;
 
-	this->data = other.data;
-	this->info = other.info;
+// 	this->data = other.data;
+// 	this->info = other.info;
 
-	other.data = nullptr;
-	other.info = nullptr;
+// 	other.data = nullptr;
+// 	other.info = nullptr;
 
-	std::cout << "Move Constructor" << std::endl;
-}
+// 	std::cout << "Move Constructor" << std::endl;
+// }
 
 
 
-void swap(Matrix &first, Matrix &second) {
-	using std::swap;
+// void swap(Matrix &first, Matrix &second) {
+// 	using std::swap;
 
-	swap(first.num_rows, second.num_rows);
-	swap(first.num_cols, second.num_cols);
-	swap(first.data, second.data);
-	swap(first.info, second.info);
+// 	swap(first.num_rows, second.num_rows);
+// 	swap(first.num_cols, second.num_cols);
+// 	swap(first.data, second.data);
+// 	swap(first.info, second.info);
 
-}
+// }
 
-// Copy Assignment
-Matrix &Matrix::operator=(Matrix other) {
+// // Copy Assignment
+// Matrix &Matrix::operator=(Matrix other) {
 
-	swap(*this, other);
+// 	swap(*this, other);
 
-	std::cout << "Copy Assignment" << std::endl;
+// 	std::cout << "Copy Assignment" << std::endl;
 
-	return *this;
+// 	return *this;
 
-}
+// }
 
 
 /****************************************************************************\
