@@ -1,7 +1,6 @@
 #ifndef _VECTOR_H_
 #define _VECTOR_H_
 
-// #include "vectorinfo.h"
 #include "info.h"
 #include <vector>
 #include <memory>
@@ -12,6 +11,10 @@
 #define INIT_SIZE 32
 #define CHECK_BOUNDS 1
 
+std::size_t nextPowerOfTwo(std::size_t value);
+class CalculationError;
+class OutOfBoundsException;
+class DivisionByZeroError;
 
 template <typename T>
 class Vector {
@@ -107,7 +110,6 @@ class Vector {
 	void elementUpdateFlags(std::size_t index, T ele);
 
 	// get&set elements without needing to update flags at each access.
-	T &operator[] (std::size_t index);
 	void swap(Vector<T> &first, Vector<T> &second) noexcept;
 
 public:
@@ -136,6 +138,7 @@ public:
 	Vector<T> &operator/=(const T rhs);
 
 
+	T &operator[] (std::size_t index);
 	T get(std::size_t index) const;
 	T set(std::size_t index, T value);
 
@@ -162,7 +165,7 @@ public:
 
 template <typename T>
 Vector<T>::Vector(std::size_t length) : 
-		vec_size{length}, capacity{0}, info{new VectorInfo<T>()} {
+		vec_size{length}, capacity{0}, info{new VectorInfo<T>} {
 	this->allocateData(length);
 }
 
@@ -498,7 +501,8 @@ Vector<T> operator/(Vector<T> lhs, const T rhs) {
 	return lhs;
 }
 
-// Made private, so no need to update flags.
+// Made PUBLIC, so no need to update flags.
+// Will 
 template <typename T>
 T &Vector<T>::operator[](std::size_t index) {
 	#ifdef CHECK_BOUNDS
@@ -618,8 +622,6 @@ void Vector<T>::print() const {
 	}
 	std::cout << std::endl;
 }
-
-
 
 
 

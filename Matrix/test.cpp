@@ -1,11 +1,11 @@
 #include <iostream>
 #include "matrix.h"
-#include "decomposition.h"
-// #include "../Vector/vector.h"
+// #include "decomposition.h"
+#include "../Vector/vector.h"
 
 
 int main() {
-	Matrix A("ludec2.txt");
+	Matrix A("testing/ludec2.txt");
 	A.print();
 
 	// Matrix *L, *U;
@@ -29,7 +29,7 @@ int main() {
 
 
 
-	Matrix b("ludec2.txt");
+	Matrix b("testing/ludec2.txt");
 	b.print();
 
 	// Vector perm = Pivot(b);
