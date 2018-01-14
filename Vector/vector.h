@@ -17,7 +17,7 @@ class OutOfBoundsException;
 class DivisionByZeroError;
 
 class Vector {
-		
+	// Need to add a flag/value for the index for the first nonzero element.	
 	struct VectorInfo {
 
 	/*********** FLAGS *********/
