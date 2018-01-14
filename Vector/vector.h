@@ -1,5 +1,5 @@
-#ifndef _VECdoubleOR_H_
-#define _VECdoubleOR_H_
+#ifndef _VECTOR_H_
+#define _VECTOR_H_
 
 #include "info.h"
 #include <vector>
