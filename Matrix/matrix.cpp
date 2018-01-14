@@ -61,7 +61,7 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 
 	this->allocateData();
 	for (std::size_t row = 0; row < num_rows; ++row) {
-		*(this->data[row]) = *(other.data[row]);
+		*(this->[row]) = *(other.data[row]);
 	}
 
 	// this->info = new MatrixInfo();

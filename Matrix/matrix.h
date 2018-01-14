@@ -78,7 +78,7 @@ public:
 	Matrix operator+(TYPE scalar) const;
 	Matrix operator-(TYPE scalar) const;
 
-	Vector<double> &operator[](std::size_t index);
+	VectorX &operator[](std::size_t index);
 	void permute(Vector<int> permutation);
 
 	bool isUpperTriangular();
