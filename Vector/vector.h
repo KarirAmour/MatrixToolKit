@@ -1,5 +1,5 @@
-#ifndef _VECTOR_H_
-#define _VECTOR_H_
+#ifndef _VECdoubleOR_H_
+#define _VECdoubleOR_H_
 
 #include "info.h"
 #include <vector>
@@ -8,18 +8,16 @@
 #include <cstdlib>
 #include <iostream>
 
-#define INIT_SIZE 32
+#define INIdouble_SIZE 32
 #define CHECK_BOUNDS 1
 
-std::size_t nextPowerOfTwo(std::size_t value);
+std::size_t nextPowerOfdoublewo(std::size_t value);
 class CalculationError;
 class OutOfBoundsException;
 class DivisionByZeroError;
 
-template <typename T>
 class Vector {
 		
-	template<typename L>
 	struct VectorInfo {
 
 	/*********** FLAGS *********/
@@ -28,19 +26,19 @@ class Vector {
 		bool norm_flag;
 
 		std::size_t zero_count;
-		L vec_sum;
-		L norm_sq;
+		double vec_sum;
+		double norm_sq;
 	/***************************/
 		
 		VectorInfo(bool zeroflg=false, bool sumflg=false, bool normflg=false, 
-       	std::size_t zero=0, L sum=0.0, L norm=0.0) :
+       	std::size_t zero=0, double sum=0.0, double norm=0.0) :
 			zero_flag{zeroflg}, sum_flag{sumflg}, norm_flag{normflg}, 
 			zero_count{zero}, vec_sum{sum}, norm_sq{norm} {}
 
 		// All three methods use loop unrolling
 		//  Lhough may be more efficient to create one method called updateAllInfo(),
 		//   and loop through vector all in one   
-		void countZeros(Vector<L> *vec) {
+		void countZeros(Vector *vec) {
 
 			// By subtracting the number of zeros, we save on
 			// this->data[i] != 0 checks (not sure if actually true)
@@ -57,7 +55,7 @@ class Vector {
 		}
 
 		// Sums the elements in vector
-		void calculateVecSum(Vector<L> *vec) {
+		void calculateVecSum(Vector *vec) {
 
 			this->vec_sum = 0;
 			std::size_t i = 0;    
@@ -74,7 +72,7 @@ class Vector {
 
 		// Can optimize by combining this with Sum/Zero/Basis.
 		// Will cross that bridge when in optimize phase.
-		void calculateSquaredNorm(Vector<L> *vec) {
+		void calculateSquaredNorm(Vector *vec) {
 			this->norm_sq = 0;
 			std::size_t i = 0;    
 			for (; (i - 4) < vec->vec_size; ++i) {
@@ -97,56 +95,56 @@ class Vector {
 	std::size_t vec_size;
 	std::size_t capacity;
 
-	T *vec_data;
-	VectorInfo<T> *info;
+	double *vec_data;
+	VectorInfo *info;
 
-	/***** METHODS ******/
+	/***** MEdoubleHODS ******/
 
 	void allocateData(std::size_t amount);
 	void resize(std::size_t amount);
 
 	// Updates flags based on element TO BE added
 	// If added element first, forced to check ENTIRE vector
-	void elementUpdateFlags(std::size_t index, T ele);
+	void elementUpdateFlags(std::size_t index, double ele);
 
 	// get&set elements without needing to update flags at each access.
-	void swap(Vector<T> &first, Vector<T> &second) noexcept;
+	void swap(Vector &first, Vector &second) noexcept;
 
 public:
 
-	Vector<T>(std::size_t length = 0);
-	Vector<T>(std::size_t length, T init);
-	Vector<T>(const Vector &vec);
-	Vector<T>(std::vector<T> &vec);
+	Vector(std::size_t length = 0);
+	Vector(std::size_t length, double init);
+	Vector(const Vector &vec);
+	Vector(std::vector<double> &vec);
 
-	~Vector<T>();
+	~Vector();
 
-	Vector<T> &operator=(Vector<T> other);
-	bool operator==(const Vector<T> &rhs) const;
-	bool operator!=(const Vector<T> &rhs) const;
+	Vector &operator=(Vector other);
+	bool operator==(const Vector &rhs) const;
+	bool operator!=(const Vector &rhs) const;
 
-	T operator*(const Vector<T> &rhs) const;
+	double operator*(const Vector &rhs) const;
 
-	Vector<T> &operator+=(const Vector<T> &rhs);
-	Vector<T> &operator-=(const Vector<T> &rhs);
-	Vector<T> operator+(Vector<T> &rhs);
-	Vector<T> operator-(Vector<T> &rhs);
+	Vector &operator+=(const Vector &rhs);
+	Vector &operator-=(const Vector &rhs);
+	Vector operator+(Vector rhs);
+	Vector operator-(Vector rhs);
 	
-	Vector<T> &operator+=(const T rhs);
-	Vector<T> &operator-=(const T rhs);
-	Vector<T> &operator*=(const T rhs);
-	Vector<T> &operator/=(const T rhs);
+	Vector &operator+=(const double rhs);
+	Vector &operator-=(const double rhs);
+	Vector &operator*=(const double rhs);
+	Vector &operator/=(const double rhs);
 
 
-	T &operator[] (std::size_t index);
-	T get(std::size_t index) const;
-	T set(std::size_t index, T value);
+	double &operator[] (std::size_t index);
+	double get(std::size_t index) const;
+	double set(std::size_t index, double value);
 
 
-	T sum();
-	T squaredNorm();
+	double sum();
+	double squaredNorm();
 
-	void append(T ele);
+	void append(double ele);
 
 	bool isBasisVector();
 	bool isZeroVector();
@@ -161,18 +159,16 @@ public:
 
 
 
-/******************************* CONSTRUCTORS ********************************/
+/******************************* CONSdoubleRUCdoubleORS ********************************/
 
-template <typename T>
-Vector<T>::Vector(std::size_t length) : 
-		vec_size{length}, capacity{0}, info{new VectorInfo<T>} {
+Vector::Vector(std::size_t length) : 
+		vec_size{length}, capacity{0}, info{new VectorInfo} {
 	this->allocateData(length);
 }
 
 
-template <typename T>
-Vector<T>::Vector(std::size_t length, T init) : vec_size{length}, capacity{0}, 
-		info(new VectorInfo<T>(true, true, true, init == 0.0f ? length : 0.0f, 
+Vector::Vector(std::size_t length, double init) : vec_size{length}, capacity{0}, 
+		info(new VectorInfo(true, true, true, init == 0.0f ? length : 0.0f, 
 							init*length, init*init*length)) {
 
 	this->allocateData(length);
@@ -182,10 +178,9 @@ Vector<T>::Vector(std::size_t length, T init) : vec_size{length}, capacity{0},
 }
 
 
-template <typename T>
-Vector<T>::Vector(std::vector<T> &vec) {
+Vector::Vector(std::vector<double> &vec) {
 
-	this->info = new VectorInfo<T>();
+	this->info = new VectorInfo();
 	std::size_t length = vec.size();
 	this->allocateData(length);
 
@@ -204,10 +199,9 @@ Vector<T>::Vector(std::vector<T> &vec) {
 }
 
 // Copy Constructor
-template <typename T>
-Vector<T>::Vector(const Vector<T> &other) : 
+Vector::Vector(const Vector &other) : 
 	vec_size{other.vec_size}, capacity{other.capacity}, 
-	info{new VectorInfo<T>(other.info)} {
+	info{new VectorInfo(other.info)} {
 
 	this->allocateData(this->vec_size);
 
@@ -217,8 +211,7 @@ Vector<T>::Vector(const Vector<T> &other) :
 }
 
 // Overloading swap to optimize copy and move assignment
-template <typename T>
-void Vector<T>::swap(Vector<T> &first, Vector<T> &second) noexcept {
+void Vector::swap(Vector &first, Vector &second) noexcept {
 	using std::swap;
 
 	swap(first.vec_size, second.vec_size);
@@ -230,45 +223,41 @@ void Vector<T>::swap(Vector<T> &first, Vector<T> &second) noexcept {
 
 
 // Copy Assigment
-template <typename T>
-Vector<T> &Vector<T>::operator=(Vector<T> other) {
+Vector &Vector::operator=(Vector other) {
 
 	swap(*this, other);
 	return *this;
 }
 
 // Destructor
-template <typename T>
-Vector<T>::~Vector() {
+Vector::~Vector() {
 	delete this->info;
 	delete[] this->vec_data;
 }
 
 
-/****************************** DATA ALLOCATION *****************************/
+/****************************** DAdoubleA ALLOCAdoubleION *****************************/
 
 // Should only be called in constructor, else resize.
-template <typename T>
-void Vector<T>::allocateData(std::size_t amount) {
+void Vector::allocateData(std::size_t amount) {
 	this->vec_size = amount;
-	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
-	this->vec_data = new T[this->capacity];
+	this->capacity = amount ? nextPowerOfdoublewo(amount) : INIdouble_SIZE;
+	this->vec_data = new double[this->capacity];
 
 }
 
 // Can only increase size
 // Should enable ability to decrease size?
-template <typename T>
-void Vector<T>::resize(std::size_t amount) {
+void Vector::resize(std::size_t amount) {
 
-	std::size_t new_capacity = nextPowerOfTwo(this->vec_size + amount);
+	std::size_t new_capacity = nextPowerOfdoublewo(this->vec_size + amount);
 	if (this->capacity >= new_capacity) { 
 		return;
 	}
 
 	this->capacity = new_capacity;
-	T *temp = new T[this->capacity];
-	std::memcpy(temp, this->vec_data, this->vec_size * sizeof(T));
+	double *temp = new double[this->capacity];
+	std::memcpy(temp, this->vec_data, this->vec_size * sizeof(double));
 	delete[] this->vec_data;
 	this->vec_data = temp;
 }
@@ -276,12 +265,11 @@ void Vector<T>::resize(std::size_t amount) {
 
 
 
-/******************************** OPERATIONS ********************************/
+/******************************** OPERAdoubleIONS ********************************/
 
 // Will need 'approximate' equality operator
 // Possibly cast result to float and then compare
-template <typename T>
-bool Vector<T>::operator==(const Vector<T> &rhs) const {
+bool Vector::operator==(const Vector &rhs) const {
 	if (this->vec_size != rhs.vec_size) {
 		return false;
 	}
@@ -306,17 +294,15 @@ bool Vector<T>::operator==(const Vector<T> &rhs) const {
 	return true;
 }
 
-template <typename T>
-bool Vector<T>::operator!=(const Vector<T> &rhs) const {
+bool Vector::operator!=(const Vector &rhs) const {
 	return not ((*this) == rhs);
 }
 
 
-template <typename T>
-T Vector<T>::operator*(const Vector<T> &rhs) const {
+double Vector::operator*(const Vector &rhs) const {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 	
-	T sum = 0;
+	double sum = 0;
 	std::size_t i = 0;
 	for (; (i - 4) < this->vec_size; ++i) {
 		sum += this->vec_data[i + 0] * rhs.vec_data[i + 0];
@@ -332,8 +318,7 @@ T Vector<T>::operator*(const Vector<T> &rhs) const {
 }
 
 
-template <typename T>
-Vector<T> &Vector<T>::operator+=(const Vector<T> &rhs) {
+Vector &Vector::operator+=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
@@ -350,8 +335,7 @@ Vector<T> &Vector<T>::operator+=(const Vector<T> &rhs) {
 	return *this;
 }
 
-template <typename T>
-Vector<T> &Vector<T>::operator-=(const Vector<T> &rhs) {
+Vector &Vector::operator-=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
@@ -368,23 +352,20 @@ Vector<T> &Vector<T>::operator-=(const Vector<T> &rhs) {
 	return *this;
 }
 
-template <typename T>
-Vector<T> Vector<T>::operator+(Vector &rhs) {
+Vector Vector::operator+(Vector rhs) {
 	rhs += *this;
 	return rhs;
 }
 
 
-template <typename T>
-Vector<T> Vector<T>::operator-(Vector &rhs) {
+Vector Vector::operator-(Vector rhs) {
 	rhs -= *this;
 	return rhs;
 }
 
-// extern SCALAR_ADDITIVE_IDENTITY = 0;
+// extern SCALAR_ADDIdoubleIVE_IDENdoubleIdoubleY = 0;
 
-template <typename T>
-Vector<T> &Vector<T>::operator+=(const T rhs) {
+Vector &Vector::operator+=(const double rhs) {
 	if (rhs == 0) return *this;
 
 	std::size_t i = 0;
@@ -408,18 +389,16 @@ Vector<T> &Vector<T>::operator+=(const T rhs) {
 }
 
 
-template <typename T>
-Vector<T> &Vector<T>::operator-=(const T rhs) {
+Vector &Vector::operator-=(const double rhs) {
 	
 	*this += -rhs;
 
 	return *this;
 }
 
-// extern SCALAR_MULTIPLICATIVE_IDENTITY = 1;
+// extern SCALAR_MULdoubleIPLICAdoubleIVE_IDENdoubleIdoubleY = 1;
 
-template <typename T>
-Vector<T> &Vector<T>::operator*=(const T rhs) {
+Vector &Vector::operator*=(const double rhs) {
 	if (rhs == 1) return *this;
 
 	std::size_t i = 0;
@@ -451,8 +430,7 @@ Vector<T> &Vector<T>::operator*=(const T rhs) {
 }
 
 
-template <typename T>
-Vector<T> &Vector<T>::operator/=(const T rhs) {
+Vector &Vector::operator/=(const double rhs) {
 	if (rhs == 0) throw DivisionByZeroError();
 	*this *= 1 / rhs;
 
@@ -460,51 +438,44 @@ Vector<T> &Vector<T>::operator/=(const T rhs) {
 }
 
 
-template <typename T>
-Vector<T> operator+(Vector<T> lhs, const Vector<T> &rhs) {
+Vector operator+(Vector lhs, const Vector &rhs) {
 	lhs += rhs;
 	return lhs;
 }
 
 
-template <typename T>
-Vector<T> operator-(Vector<T> lhs, const Vector<T> &rhs) {
+Vector operator-(Vector lhs, const Vector &rhs) {
 	lhs -= rhs;
 	return lhs;
 }
 
 
-template <typename T>
-Vector<T> operator+(Vector<T> lhs, const T rhs) {
+Vector operator+(Vector lhs, const double rhs) {
 	lhs += rhs;
 	return lhs;
 }
 
 
-template <typename T>
-Vector<T> operator-(Vector<T> lhs, const T rhs) {
+Vector operator-(Vector lhs, const double rhs) {
 	lhs -= rhs;
 	return lhs;
 }
 
 
-template <typename T>
-Vector<T> operator*(Vector<T> lhs, const T rhs) {
+Vector operator*(Vector lhs, const double rhs) {
 	lhs *= rhs;
 	return lhs;
 }
 
 
-template <typename T>
-Vector<T> operator/(Vector<T> lhs, const T rhs) {
+Vector operator/(Vector lhs, const double rhs) {
 	lhs /= rhs;
 	return lhs;
 }
 
 // Made PUBLIC, so no need to update flags.
 // Will 
-template <typename T>
-T &Vector<T>::operator[](std::size_t index) {
+double &Vector::operator[](std::size_t index) {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -512,9 +483,8 @@ T &Vector<T>::operator[](std::size_t index) {
 }
 
 // Returns value => no update to flags_valid => Faster than operator[]
-// Though, there is an (optional) index check
-template <typename T>
-T Vector<T>::get(std::size_t index) const {
+// doublehough, there is an (optional) index check
+double Vector::get(std::size_t index) const {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -522,8 +492,7 @@ T Vector<T>::get(std::size_t index) const {
 }
 
 // Returns value => no update to flags_valid => Faster than operator[]
-template <typename T>
-T Vector<T>::set(std::size_t index, T value) {
+double Vector::set(std::size_t index, double value) {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
 	#endif
@@ -538,8 +507,7 @@ T Vector<T>::set(std::size_t index, T value) {
 
 // Do I really need this...
 
-template <typename T>
-void Vector<T>::append(T ele) {
+void Vector::append(double ele) {
 	if (this->vec_size == this->capacity) {
 		this->resize(this->capacity);
 	}
@@ -556,10 +524,9 @@ void Vector<T>::append(T ele) {
 
 // If a given flag is updated, updates info according to what it would
 //  be with ele replacing the element at index
-template <typename T>
-void Vector<T>::elementUpdateFlags(std::size_t index, T ele) {
+void Vector::elementUpdateFlags(std::size_t index, double ele) {
 	
-	T old_ele = this->vec_data[index];
+	double old_ele = this->vec_data[index];
 	if (this->info->zero_flag) {
 		if (ele != 0 and old_ele == 0) {
 			--this->info->zero_count;
@@ -579,8 +546,7 @@ void Vector<T>::elementUpdateFlags(std::size_t index, T ele) {
 }
 
 
-template <typename T>
-T Vector<T>::squaredNorm() {
+double Vector::squaredNorm() {
 	if (not this->info->norm_flag) {
 		this->info->calculateSquaredNorm(this);
 	}
@@ -588,8 +554,7 @@ T Vector<T>::squaredNorm() {
 }
 
 
-template <typename T>
-T Vector<T>::sum() {
+double Vector::sum() {
 	if (not this->info->sum_flag) {
 		this->info->calculateVecSum(this);
 	}
@@ -597,8 +562,7 @@ T Vector<T>::sum() {
 }
 
 
-template <typename T>
-bool Vector<T>::isBasisVector() {
+bool Vector::isBasisVector() {
 	if (not this->info->zero_flag) {
 		this->info->countZeros(this);
 	}
@@ -606,8 +570,7 @@ bool Vector<T>::isBasisVector() {
 }
 
 
-template <typename T>
-bool Vector<T>::isZeroVector() {
+bool Vector::isZeroVector() {
 	if (not this->info->zero_flag) {
 		this->info->countZeros(this);
 	}
@@ -615,8 +578,7 @@ bool Vector<T>::isZeroVector() {
 }
 
 
-template <typename T>
-void Vector<T>::print() const {
+void Vector::print() const {
 	for (std::size_t i = 0; i < (this->vec_size); ++i) {
 		std::cout << this->vec_data[i] << " ";
 	}

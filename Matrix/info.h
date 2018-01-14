@@ -15,6 +15,8 @@ class InvalidRow {};
 class InvalidCol {};
 class InvalidRead {};
 class InvalidDimensions {};
-
+class CalculationError {};
+class OutOfBoundsException {};
+class DivisionByZeroError {};
 
 #endif

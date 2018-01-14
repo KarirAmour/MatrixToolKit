@@ -9,8 +9,8 @@
 // template <typename> class std::vector<double>;
 // typedef Vector<double> XVector;
 // typedef Vector<double>* PVector;
-typedef Vector<double>* VectorPtr;
-typedef Vector<double> VectorX;
+typedef Vector* VectorPtr;
+typedef Vector VectorX;
 
 struct MatrixInfo {
 
@@ -45,7 +45,7 @@ public:
 	// static ZeroMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
 	// static IdentityMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
 	// static OnesMatrix(std::size_t nrows = 0, std::size_t ncols = 0);
-	// static PermutationMatrix(const std::vector<TYPE> &vec);
+	// static PermutationMatrix(const std::vector<double> &vec);
 	// static InverseMatrix(const Matrix &m);
 
 	std::shared_ptr<MatrixInfo> info;
@@ -74,12 +74,12 @@ public:
 	Matrix operator+(const Matrix &rhs) const;
 	Matrix operator-(const Matrix &rhs) const;
 
-	Matrix operator*(TYPE scalar) const;
-	Matrix operator+(TYPE scalar) const;
-	Matrix operator-(TYPE scalar) const;
+	Matrix operator*(double scalar) const;
+	Matrix operator+(double scalar) const;
+	Matrix operator-(double scalar) const;
 
 	VectorX &operator[](std::size_t index);
-	void permute(Vector<int> permutation);
+	void permute(Vector permutation);
 
 	bool isUpperTriangular();
 	bool isLowerTriangular();
@@ -92,7 +92,7 @@ public:
 	// Matrix naiveMultiply(const Matrix &rhs) const;
 	// Matrix naiveLoopMultiply(const Matrix &rhs) const;
 
-    // TYPE dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const;
+    // double dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const;
 	// Matrix operator+ (const Matrix& c) const;
 
 	// void WriteTo(std::string file);

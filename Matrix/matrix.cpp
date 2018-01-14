@@ -61,7 +61,7 @@ Matrix::Matrix(const Matrix &other) : num_rows{other.num_rows}, num_cols{other.n
 
 	this->allocateData();
 	for (std::size_t row = 0; row < num_rows; ++row) {
-		*(this->[row]) = *(other.data[row]);
+		*(this->data.at(row)) = *(other.data.at(row));
 	}
 
 	// this->info = new MatrixInfo();
@@ -173,7 +173,7 @@ void Matrix::readCSV(const char *file_name) {
 	FILE *fp = fopen(file_name, "r");
 	if (fp == nullptr) throw FileNotFound();
 
-	std::size_t buff_size = (this->num_cols * sizeof(TYPE) + 1) * TYPE_SIZE;
+	std::size_t buff_size = (this->num_cols * sizeof(double) + 1) * TYPE_SIZE;
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		char *row_data = new char[buff_size];
 		if (not fgets(row_data, buff_size, fp)) throw InvalidRead();
@@ -181,7 +181,7 @@ void Matrix::readCSV(const char *file_name) {
 		char *token;
 		token = std::strtok(row_data, SEP);
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			this->data[row][col] = ATOT(token);
+			this->data[row]->set(col, ATOT(token));
 			token = std::strtok(nullptr, SEP);
 		}
 		delete[] row_data;
@@ -209,7 +209,7 @@ bool Matrix::operator==(const Matrix &rhs) const {
 	}
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
 		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			if (this->data[row][col] != rhs.data[row][col]) {
+			if (this->data[row]->get(col) != rhs.data[row]->get(col)) {
 				return false;
 			}
 		}
@@ -230,11 +230,11 @@ Matrix Matrix::operator*(const Matrix &rhs) const {
 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
 	for (std::size_t row = 0; row < product.num_rows; ++row) {
 		for (std::size_t col = 0; col < product.num_cols; ++col) {
-			TYPE sum = 0;
+			double sum = 0;
 			for (std::size_t k = 0; k < this->num_cols; ++k) {
-				sum += this->data[row][k] * rhs.data[k][col];
+				sum += this->data[row]->get(k) * rhs.data[k]->get(col);
 			}
-			product.data[row][col] = sum;
+			product.data[row]->set(col, sum);
 		}
 	}
 
@@ -242,13 +242,11 @@ Matrix Matrix::operator*(const Matrix &rhs) const {
 }
 
 
-Matrix Matrix::operator*(TYPE scalar) const {
+Matrix Matrix::operator*(double scalar) const {
 	
 	Matrix product(*this);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			product.data[row][col] *= scalar;
-		}	
+		*(product.data[row]) *= scalar;
 	}
 	return product;
 }
@@ -260,21 +258,17 @@ Matrix Matrix::operator+(const Matrix &rhs) const {
 	
 	Matrix sum(*this);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			sum.data[row][col] += rhs.data[row][col];
-		}	
+		sum[row] += *(rhs.data[row]);	
 	}
 	return sum;
 }
 
 
-Matrix Matrix::operator+(TYPE scalar) const {
+Matrix Matrix::operator+(double scalar) const {
 	
 	Matrix sum(*this);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			sum.data[row][col] += scalar;
-		}	
+		sum[row] += scalar;	
 	}
 	return sum;
 }
@@ -287,20 +281,18 @@ Matrix Matrix::Matrix::operator-(const Matrix &rhs) const {
 	
 	Matrix difference(*this);
 	for (std::size_t row = 0; row < this->num_rows; ++row) {
-		for (std::size_t col = 0; col < this->num_cols; ++col) {
-			difference.data[row][col] -= rhs.data[row][col];
-		}	
+		difference[row] -= *(rhs.data[row]);
 	}
 	return difference;
 }
 
 
 
-Matrix Matrix::operator-(TYPE scalar) const {
+Matrix Matrix::operator-(double scalar) const {
 	return Matrix(*this + (-scalar));
 }
 
-Vector<double> &Matrix::operator[](std::size_t index) {
+VectorX &Matrix::operator[](std::size_t index) {
 	return *(this->data[index]);
 }
 
@@ -313,12 +305,12 @@ Vector<double> &Matrix::operator[](std::size_t index) {
 // Though if eventually multithreading gets involved, may need to 
 // change function to return a new permuted matrix...
 // fml
-void Matrix::permute(Vector<int> permutation) {
+void Matrix::permute(VectorX permutation) {
 	if (permutation.size() != this->getRows()) throw InvalidDimensions();
 
-	Vector<Vector<double> *> swp(this->getRows());
-	for (std::size_t i = 0; i < this->getRows(); ++i) swp.set(i, this->data[i]);
-	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swp.get(permutation.get(i));
+	std::vector<std::shared_ptr<VectorX>> swapper(this->getRows());
+	for (std::size_t i = 0; i < this->getRows(); ++i) swapper[i] = this->data[i];
+	for (std::size_t i = 0; i < this->getRows(); ++i) this->data[i] = swapper.at(permutation.get(i));
 
 }
 
@@ -352,7 +344,7 @@ void Matrix::setIsUpper() {
 	std::size_t col = 0;
 	for (std::size_t row = 0; row > col; ++row) {
 		for (col = 0; col <= row; ++col) {
-			if (this->data[row][col] != 0) return;
+			if (this->data[row]->get(col) != 0) return;
 		}
 	}
 	this->info->isUpper = true;
@@ -373,7 +365,7 @@ void Matrix::setIsLower() {
 	std::size_t col = 0;
 	for (std::size_t row = 0; row > col; ++row) {
 		for (col = row; col < this->num_cols; ++col) {
-			if (this->data[row][col] != 0) return;
+			if (this->data[row]->get(col) != 0) return;
 		}
 	}
 	this->info->isLower = true;
@@ -390,7 +382,7 @@ void Matrix::setIsZero() {
 	this->info->isZero = false;
 	for (std::size_t row = 0; row < this-> num_rows; ++row) {
 		for (std::size_t col = 0; col < this-> num_cols; ++col) {
-			if (this->data[row][col] != 0) return;
+			if (this->data[row]->get(col) != 0) return;
 		}
 	}
 	this->info->isZero = true;
@@ -410,8 +402,8 @@ void Matrix::setIsIdentity() {
 	for (std::size_t row = 0; row < this-> num_rows; ++row) {
 		for (std::size_t col = 0; col < this-> num_cols; ++col) {
 			if (row == col) {
-				if (this->data[row][col] != 1) return;
-			} else if (this->data[row][col] != 0) return;
+				if (this->data[row]->get(col) != 1) return;
+			} else if (this->data[row]->get(col) != 0) return;
 		}
 	}
 	this->info->isIdentity = true;	
@@ -473,7 +465,7 @@ void Matrix::print() const {
 
 
 
-// TYPE Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
+// double Matrix::dot(const Matrix &lhs, const Matrix &rhs, std::size_t row, std::size_t col) const {
 // 	int sum = 0;
 // 	if (lhs.num_cols != rhs.num_rows) throw InvalidDimensions();
 
@@ -494,7 +486,7 @@ void Matrix::print() const {
 // 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
 // 	for (std::size_t row = 0; row < product.num_rows; ++row) {
 // 		for (std::size_t col = 0; col < product.num_cols; ++col) {
-// 			TYPE sum = 0;
+// 			double sum = 0;
 // 			for (std::size_t k = 0; k < this->num_cols; ++k) {
 // 				sum += this->data[row][k] * rhs.data[k][col];
 
@@ -521,7 +513,7 @@ void Matrix::print() const {
 // 	Matrix product = Matrix(this->num_rows, rhs.num_cols);
 // 	for (std::size_t row = 0; row < product.num_rows; row += 2) {
 // 		for (std::size_t col = 0; col < product.num_cols; col += 2) {
-// 			TYPE acc00 = 0, acc01 = 0, acc10 = 0, acc11 = 0;
+// 			double acc00 = 0, acc01 = 0, acc10 = 0, acc11 = 0;
 // 			for (std::size_t k = 0; k < this->num_cols; ++k) {
 // 				acc00 += this->data[k][col + 0] * rhs.data[row + 0][k];
 // 				acc01 += this->data[k][col + 1] * rhs.data[row + 0][k];
@@ -537,7 +529,7 @@ void Matrix::print() const {
 // 	// For last column if product.n_cols is odd
 // 	if (product.num_cols % 2 == 1) {
 // 		for (std::size_t row = 0; row < this->num_cols; ++row) {
-// 			TYPE sum = 0;
+// 			double sum = 0;
 // 			for (std::size_t k = 0; k < this->num_cols; ++k) {
 // 				sum += this->data[row][k] * rhs.data[k][product.num_cols - 1];
 // 			}
@@ -581,7 +573,7 @@ void Matrix::print() const {
 // 	while ( getline(input, line) ) {
 
 // 		std::istringstream ss(line);
-// 		TYPE cell = 0;
+// 		double cell = 0;
 // 		size_t col = 0;
 // 		while (ss.good()) {
 // 			std::string cellString;
