@@ -18,14 +18,14 @@ bool TestVector::testBigFive() { // No need since automatically tested?
 
     // Default Constructor
 
-    Vector<double> *testZeroLength = new Vector<double>(0);
+    Vector *testZeroLength = new Vector(0);
     assert(testZeroLength->size() == 0);
     assert(testZeroLength->sum() == 0);
     assert(testZeroLength->squaredNorm() == 0);
     assert(testZeroLength->isBasisVector() == false);
     assert(testZeroLength->isZeroVector() == true);
 
-    Vector<double> *testOneLength = new Vector<double>(1);
+    Vector *testOneLength = new Vector(1);
     assert(testOneLength->size() == 1);
     assert(testOneLength->sum() == 0);
 
@@ -53,16 +53,16 @@ bool TestVector::testOperators() {
 
 
     // std::cout << "small1: " << std::endl;    
-    Vector<double> small1(5, 3);
+    Vector small1(5, 3);
     assert(small1.size() == 5);
     // small1.print();
 
     // std::cout << "small2: " << std::endl;    
-    Vector<double> small2(5, 3.0000);
+    Vector small2(5, 3.0000);
     assert(small2.size() == 5);
     // small2.print();
 
-    Vector<double> small3(small2);
+    Vector small3(small2);
     std::cout << "small3 norm: "  << small3.squaredNorm() << std::endl;    
     assert(small3.size() == 5);    
     // small3.print();
@@ -113,7 +113,7 @@ bool TestVector::testOperators() {
     double s1x3 = small1 * small3;
     assert(s1x3 == 90.0);
 
-    Vector<double> s3p2 = small3 + small2;
+    Vector s3p2 = small3 + small2;
     small3 *= 2;
     assert(s3p2 == small3);
     small3.print();
