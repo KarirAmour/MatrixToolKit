@@ -11,7 +11,7 @@
 #define INIT_SIZE 32
 #define CHECK_BOUNDS 1
 
-std::size_t nextPowerOfdoublewo(std::size_t value);
+std::size_t nextPowerOfTwo(std::size_t value);
 class CalculationError;
 class OutOfBoundsException;
 class DivisionByZeroError;
@@ -98,7 +98,7 @@ class Vector {
 	double *vec_data;
 	VectorInfo *info;
 
-	/***** MEdoubleHODS ******/
+	/***** METHODS ******/
 
 	void allocateData(std::size_t amount);
 	void resize(std::size_t amount);

@@ -80,12 +80,12 @@ Vector::~Vector() {
 }
 
 
-/****************************** DAdoubleA ALLOCAdoubleION *****************************/
+/****************************** DATA ALLOCATION *****************************/
 
 // Should only be called in constructor, else resize.
 void Vector::allocateData(std::size_t amount) {
 	this->vec_size = amount;
-	this->capacity = amount ? nextPowerOfdoublewo(amount) : INIT_SIZE;
+	this->capacity = amount ? nextPowerOfTwo(amount) : INIT_SIZE;
 	this->vec_data = new double[this->capacity];
 
 }
@@ -94,7 +94,7 @@ void Vector::allocateData(std::size_t amount) {
 // Should enable ability to decrease size?
 void Vector::resize(std::size_t amount) {
 
-	std::size_t new_capacity = nextPowerOfdoublewo(this->vec_size + amount);
+	std::size_t new_capacity = nextPowerOfTwo(this->vec_size + amount);
 	if (this->capacity >= new_capacity) { 
 		return;
 	}
@@ -109,7 +109,7 @@ void Vector::resize(std::size_t amount) {
 
 
 
-/******************************** OPERAdoubleIONS ********************************/
+/******************************** OPERATIONS ********************************/
 
 // Will need 'approximate' equality operator
 // Possibly cast result to float and then compare
@@ -207,7 +207,7 @@ Vector Vector::operator-(Vector rhs) {
 	return rhs;
 }
 
-// extern SCALAR_ADDIdoubleIVE_IDENdoubleIdoubleY = 0;
+// extern SCALAR_ADDITIVE_IDENTITY = 0;
 
 Vector &Vector::operator+=(const double rhs) {
 	if (rhs == 0) return *this;
@@ -240,7 +240,7 @@ Vector &Vector::operator-=(const double rhs) {
 	return *this;
 }
 
-// extern SCALAR_MULdoubleIPLICAdoubleIVE_IDENdoubleIdoubleY = 1;
+// extern SCALAR_MULTIPLICATIVE_IDENTITY = 1;
 
 Vector &Vector::operator*=(const double rhs) {
 	if (rhs == 1) return *this;
@@ -327,7 +327,7 @@ double &Vector::operator[](std::size_t index) {
 }
 
 // Returns value => no update to flags_valid => Faster than operator[]
-// doublehough, there is an (optional) index check
+// Though, there is an (optional) index check
 double Vector::get(std::size_t index) const {
 	#ifdef CHECK_BOUNDS
 	if (index >= this->vec_size) throw OutOfBoundsException();
