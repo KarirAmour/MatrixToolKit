@@ -20,37 +20,42 @@ class Vector {
 	// Need to add a flag/value for the index for the first nonzero element.	
 	struct VectorInfo {
 
-	/*********** FLAGS *********/
+		/***** FLAGS *****/
+
 		bool zero_flag;
+		bool nonzero_flag;
 		bool sum_flag;
 		bool norm_flag;
 
+		int first_nonzero; // First non zero index
 		std::size_t zero_count;
 		double vec_sum;
 		double norm_sq;
-	/***************************/
+		/*****************/
 		
 		VectorInfo(bool zeroflg=false, bool sumflg=false, bool normflg=false, 
        	std::size_t zero=0, double sum=0.0, double norm=0.0) :
 			zero_flag{zeroflg}, sum_flag{sumflg}, norm_flag{normflg}, 
 			zero_count{zero}, vec_sum{sum}, norm_sq{norm} {}
 
-		// All three methods use loop unrolling
-		//  Lhough may be more efficient to create one method called updateAllInfo(),
-		//   and loop through vector all in one   
+		//  It may be more efficient to create one method called updateAllInfo(),
+		//  and loop through vector all in one   
 		void countZeros(Vector *vec) {
 
-			// By subtracting the number of zeros, we save on
-			// this->data[i] != 0 checks (not sure if actually true)
 			std::size_t i = 0;
-			this->zero_count = vec->vec_size;
-			for (; (i - 4) < vec->vec_size; ++i) {
-				if (vec->vec_data[i + 0]) --this->zero_count;
-				if (vec->vec_data[i + 1]) --this->zero_count;
-				if (vec->vec_data[i + 2]) --this->zero_count;
-				if (vec->vec_data[i + 3]) --this->zero_count;
+			this->zero_count = 0;
+			// Find first non zero index
+			while (i < vec->size() and vec->vec_data[i] == 0) ++i;
+
+			if (i == vec->size()) {
+				this->first_nonzero = -1;
+			} else {
+				this->first_nonzero = i;
 			}
-			for (; i < vec->vec_size; ++i) if (vec->vec_data[i]) --this->zero_count;
+
+			for (; i < vec->size(); ++i) {
+				if (vec->vec_data[i]) --this->zero_count;
+			}
 			this->zero_flag = true;
 		}
 
@@ -58,14 +63,9 @@ class Vector {
 		void calculateVecSum(Vector *vec) {
 
 			this->vec_sum = 0;
-			std::size_t i = 0;    
-			for (; (i - 4) < vec->vec_size; ++i) {
-				this->vec_sum += vec->vec_data[i + 0];
-				this->vec_sum += vec->vec_data[i + 1];
-				this->vec_sum += vec->vec_data[i + 2];
-				this->vec_sum += vec->vec_data[i + 3];
+			for (std::size_t i = 0; i  < vec->size(); ++i) {
+				this->vec_sum += vec->vec_data[i];
 			}
-			for (; i < vec->vec_size; ++i) this->vec_sum += vec->vec_data[i];
 			this->sum_flag = true;
 			
 		}
@@ -74,14 +74,7 @@ class Vector {
 		// Will cross that bridge when in optimize phase.
 		void calculateSquaredNorm(Vector *vec) {
 			this->norm_sq = 0;
-			std::size_t i = 0;    
-			for (; (i - 4) < vec->vec_size; ++i) {
-				this->norm_sq += vec->vec_data[i + 0] * vec->vec_data[i + 0];
-				this->norm_sq += vec->vec_data[i + 1] * vec->vec_data[i + 1];
-				this->norm_sq += vec->vec_data[i + 2] * vec->vec_data[i + 2];
-				this->norm_sq += vec->vec_data[i + 3] * vec->vec_data[i + 3];
-			}
-			for (; i < vec->vec_size; ++i) {
+			for (std::size_t i = 0; i < vec->size(); ++i) {
 				this->norm_sq += vec->vec_data[i] * vec->vec_data[i];
 			}
 			this->norm_flag = true;
@@ -91,7 +84,6 @@ class Vector {
 
 
 	/******* INFO *******/
-
 	std::size_t vec_size;
 	std::size_t capacity;
 

@@ -148,12 +148,6 @@ double Vector::operator*(const Vector &rhs) const {
 	
 	double sum = 0;
 	std::size_t i = 0;
-	for (; (i - 4) < this->vec_size; ++i) {
-		sum += this->vec_data[i + 0] * rhs.vec_data[i + 0];
-		sum += this->vec_data[i + 1] * rhs.vec_data[i + 1];
-		sum += this->vec_data[i + 2] * rhs.vec_data[i + 2];
-		sum += this->vec_data[i + 3] * rhs.vec_data[i + 3];
-	}
 	for (; i < this->vec_size; ++i) {
 		sum += this->vec_data[i] * rhs.vec_data[i];
 	}
@@ -166,12 +160,6 @@ Vector &Vector::operator+=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
-	for (; (i - 4) < this->vec_size; ++i) {
-		this->vec_data[i + 0] += rhs.vec_data[i + 0];
-		this->vec_data[i + 1] += rhs.vec_data[i + 1];
-		this->vec_data[i + 2] += rhs.vec_data[i + 2];
-		this->vec_data[i + 3] += rhs.vec_data[i + 3];
-	}
 	for (; i < this->vec_size; ++i) {
 		this->vec_data[i] += rhs.vec_data[i];
 	}
@@ -183,12 +171,6 @@ Vector &Vector::operator-=(const Vector &rhs) {
 	if (this->size() != rhs.size()) throw InvalidDimensions();
 
 	std::size_t i = 0;
-	for (; (i - 4) < this->vec_size; ++i) {
-		this->vec_data[i + 0] -= rhs.vec_data[i + 0];
-		this->vec_data[i + 1] -= rhs.vec_data[i + 1];
-		this->vec_data[i + 2] -= rhs.vec_data[i + 2];
-		this->vec_data[i + 3] -= rhs.vec_data[i + 3];
-	}
 	for (; i < this->vec_size; ++i) { 
 		this->vec_data[i] -= rhs.vec_data[i];
 	}
@@ -213,12 +195,6 @@ Vector &Vector::operator+=(const double rhs) {
 	if (rhs == 0) return *this;
 
 	std::size_t i = 0;
-	for (; (i - 4) < this->vec_size; ++i) {
-		this->vec_data[i + 0] += rhs;
-		this->vec_data[i + 1] += rhs;
-		this->vec_data[i + 2] += rhs;
-		this->vec_data[i + 3] += rhs;
-	}
 	for (; i < this->vec_size; ++i) { 
 		this->vec_data[i] += rhs;
 	}
@@ -246,13 +222,9 @@ Vector &Vector::operator*=(const double rhs) {
 	if (rhs == 1) return *this;
 
 	std::size_t i = 0;
-	for (; (i - 4) < this->vec_size; ++i) {
-		this->vec_data[i + 0] *= rhs;
-		this->vec_data[i + 1] *= rhs;
-		this->vec_data[i + 2] *= rhs;
-		this->vec_data[i + 3] *= rhs;
+	for (; i < this->vec_size; ++i) { 
+		this->vec_data[i] *= rhs; 
 	}
-	for (; i < this->vec_size; ++i) { this->vec_data[i] *= rhs; }
 
 	if (rhs == 0) {	
 		this->info->zero_flag = true;

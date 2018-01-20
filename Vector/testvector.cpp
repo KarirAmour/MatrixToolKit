@@ -123,17 +123,6 @@ bool TestVector::testOperators() {
     small3.print();
     s3p2.print();
     assert(small3 == s3p2);
-    
-
-    // Assignment operator
-
-
-
-    // Equality operator
-
-
-
-    // Not equal Operator
 
 
 
