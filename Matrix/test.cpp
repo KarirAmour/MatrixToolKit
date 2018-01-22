@@ -1,7 +1,7 @@
 #include <iostream>
 #include "matrix.h"
 // #include "decomposition.h"
-#include "../Vector/vector.h"
+#include "vector.h"
 
 
 int main() {
